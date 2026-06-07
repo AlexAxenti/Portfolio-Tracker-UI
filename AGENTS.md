@@ -55,4 +55,4 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ## Notes
 
-- This project is also for Angular/.NET learning. When generating code, if asked for teaching, briefly explain the Angular concept being used and mention the older/common alternative when useful.
+- This project is mainly for Angular/.NET learning. When generating code, if asked for teaching, briefly explain the Angular concept being used and mention the older/common alternative when useful.
