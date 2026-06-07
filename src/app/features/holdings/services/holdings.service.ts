@@ -47,32 +47,53 @@ export class HoldingsService {
     },
   ]);
 
+
   readonly holdingViews = computed<HoldingView[]>(() => {
     const holdings = this.holdings();
 
-    const totalPortfolioValue = holdings.reduce((total, holding) => {
+    const totalPortfolioValue = this.holdings().reduce((total, holding) => {
       const price = holding.currentPrice ?? holding.averageCost;
       return total + holding.shareCount * price;
     }, 0);
 
-    return holdings.map((holding) => {
-      const effectiveCurrentPrice = holding.currentPrice ?? holding.averageCost;
-      const totalCostInvested = holding.shareCount * holding.averageCost;
-      const marketValue = holding.shareCount * effectiveCurrentPrice;
-      const unrealizedPL = marketValue - totalCostInvested;
-      const unrealizedPLPercent = totalCostInvested === 0 ? 0 : (unrealizedPL / totalCostInvested) * 100;
-      const allocationPercent =
-        totalPortfolioValue === 0 ? 0 : (marketValue / totalPortfolioValue) * 100;
-
-      return {
-        ...holding,
-        effectiveCurrentPrice,
-        totalCostInvested,
-        marketValue,
-        unrealizedPL,
-        unrealizedPLPercent,
-        allocationPercent,
-      };
-    });
+    return holdings.map((holding) => this.calculateHoldingView(holding, totalPortfolioValue));
   });
+
+  addHolding(holding: Holding): void {
+    this.holdings.update((holdings) => [...holdings, holding]);
+  }
+
+  updateHolding(updatedHolding: Holding): void {
+    this.holdings.update((holdings) =>
+      holdings.map((holding) =>
+        holding.id === updatedHolding.id ? updatedHolding : holding
+      )
+    );
+  }
+
+  deleteHolding(id: string): void {
+    this.holdings.update((holdings) =>
+      holdings.filter((holding) => holding.id !== id)
+    );
+  }
+
+  private calculateHoldingView(holding: Holding, totalPortfolioValue: number): HoldingView {
+    const effectiveCurrentPrice = holding.currentPrice ?? holding.averageCost;
+    const totalCostInvested = holding.shareCount * holding.averageCost;
+    const marketValue = holding.shareCount * effectiveCurrentPrice;
+    const unrealizedPL = marketValue - totalCostInvested;
+    const unrealizedPLPercent = totalCostInvested === 0 ? 0 : (unrealizedPL / totalCostInvested) * 100;
+    const allocationPercent =
+        totalPortfolioValue === 0 ? 0 : (marketValue / totalPortfolioValue) * 100;
+    
+    return {
+      ...holding,
+      effectiveCurrentPrice,
+      totalCostInvested,
+      marketValue,
+      unrealizedPL,
+      unrealizedPLPercent,
+      allocationPercent,
+    }
+  }
 }
