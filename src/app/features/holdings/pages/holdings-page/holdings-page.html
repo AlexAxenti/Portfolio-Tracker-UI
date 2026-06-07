@@ -1,1 +1,38 @@
-<p>holdings-page works!</p>
+<h1>Holdings</h1>
+
+@if (holdingViews().length === 0) {
+  <p>No holdings yet.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Company</th>
+        <th>Shares</th>
+        <th>Avg Cost</th>
+        <th>Current Price</th>
+        <th>Current Value</th>
+        <th>P/L</th>
+        <th>Allocation</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (holding of holdingViews(); track holding.id) {
+        <tr>
+          <td>{{ holding.ticker }}</td>
+          <td>{{ holding.companyName }}</td>
+          <td>{{ holding.shareCount }}</td>
+          <td>{{ holding.averageCost | currency }}</td>
+          <td>{{ holding.effectiveCurrentPrice | currency }}</td>
+          <td>{{ holding.marketValue | currency }}</td>
+          <td>
+            {{ holding.unrealizedPL | currency }}
+            ({{ holding.unrealizedPLPercent | number: '1.1-1' }}%)
+          </td>
+          <td>{{ holding.allocationPercent | number: '1.1-1' }}%</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
