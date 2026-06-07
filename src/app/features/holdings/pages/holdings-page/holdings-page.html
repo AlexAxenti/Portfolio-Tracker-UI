@@ -1,1 +1,54 @@
-<p>holdings-page works!</p>
+<div class="page-header">
+  <h1>Holdings</h1>
+
+  <button mat-flat-button type="button" (click)="onAddHolding()">
+    Add Holding
+  </button>
+</div>
+
+@if (holdingViews().length === 0) {
+  <p>No holdings yet.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Company</th>
+        <th>Shares</th>
+        <th>Avg Cost</th>
+        <th>Current Price</th>
+        <th>Current Value</th>
+        <th>P/L</th>
+        <th>Allocation</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (holding of holdingViews(); track holding.id) {
+        <tr>
+          <td>{{ holding.ticker }}</td>
+          <td>{{ holding.companyName }}</td>
+          <td>{{ holding.shareCount }}</td>
+          <td>{{ holding.averageCost | currency }}</td>
+          <td>{{ holding.effectiveCurrentPrice | currency }}</td>
+          <td>{{ holding.marketValue | currency }}</td>
+          <td>
+            {{ holding.unrealizedPL | currency }}
+            ({{ holding.unrealizedPLPercent | number: '1.1-1' }}%)
+          </td>
+          <td>{{ holding.allocationPercent | number: '1.1-1' }}%</td>
+          <td>
+            <button mat-button type="button" (click)="onUpdateHolding(holding)">
+              Edit
+            </button>
+
+            <button mat-button type="button" (click)="onDeleteHolding(holding)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

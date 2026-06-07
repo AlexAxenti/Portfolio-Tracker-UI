@@ -56,3 +56,6 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 ## Notes
 
 - This project is mainly for Angular/.NET learning. When generating code, if asked for teaching, briefly explain the Angular concept being used and mention the older/common alternative when useful.
+- Don't run build, start, or tests or anything automatically after tasks unless specifically asked.
+- Don't randomly decide to just clean/refactor/redesign certain pages unless I specifically ask you to. Focus on just implementing/executing the
+details of the task I gave.

@@ -1,1 +1,26 @@
-<p>header works!</p>
+<header class="site-header">
+  <a class="brand-link" routerLink="/" aria-label="Portfolio Tracker home">
+    Portfolio Tracker
+  </a>
+
+  <nav class="primary-nav" aria-label="Primary navigation">
+    <a
+      class="nav-link"
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Dashboard
+    </a>
+    <a class="nav-link" routerLink="/holdings" routerLinkActive="active">
+      Holdings
+    </a>
+    <a class="nav-link" routerLink="/holdings" routerLinkActive="active">
+      Trades
+    </a>
+  </nav>
+
+  <div class="profile-avatar" aria-hidden="true">
+    <span class="profile-icon"></span>
+  </div>
+</header>
