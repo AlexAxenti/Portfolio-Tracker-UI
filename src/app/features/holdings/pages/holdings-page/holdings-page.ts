@@ -4,6 +4,7 @@ import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { Holding, HoldingView } from '../../models/holding.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import {
   HoldingFormDialogComponent,
   HoldingFormDialogData,
@@ -16,7 +17,7 @@ import { filter, take } from 'rxjs';
 
 @Component({
   selector: 'app-holdings-page',
-  imports: [CurrencyPipe, DecimalPipe, MatButtonModule, MatDialogModule],
+  imports: [CurrencyPipe, DecimalPipe, MatButtonModule, MatDialogModule, MatIconModule],
   templateUrl: './holdings-page.html',
   styleUrl: './holdings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
