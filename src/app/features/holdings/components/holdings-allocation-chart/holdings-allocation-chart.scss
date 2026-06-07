@@ -1,0 +1,97 @@
+:host {
+  display: block;
+}
+
+.allocation-chart {
+  border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 45%, transparent);
+  padding: 1.5rem;
+}
+
+.chart-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+h2 {
+  color: var(--mat-sys-on-surface);
+  font-size: 1.25rem;
+  line-height: 1.2;
+  margin: 0.25rem 0 0;
+}
+
+.sort-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.sort-controls button {
+  background: var(--mat-sys-surface-container-high, #1f2937);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 70%, transparent);
+  border-radius: 999px;
+  color: var(--mat-sys-on-surface);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.sort-controls button:hover,
+.sort-controls button:focus-visible {
+  border-color: var(--mat-sys-primary);
+}
+
+.sort-controls button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--mat-sys-primary) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.sort-controls button.is-active {
+  background: var(--mat-sys-primary);
+  border-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+}
+
+.chart-wrap {
+  height: min(28rem, 70vw);
+  min-height: 18rem;
+  position: relative;
+}
+
+canvas {
+  cursor: pointer;
+}
+
+@media (max-width: 48rem) {
+  .allocation-chart {
+    padding: 1rem;
+  }
+
+  .chart-header {
+    flex-direction: column;
+  }
+
+  .sort-controls {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}

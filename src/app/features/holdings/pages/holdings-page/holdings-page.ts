@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HoldingsService } from '../../services/holdings.service';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { Holding, HoldingView } from '../../models/holding.model';
+import { HoldingsSort } from '../../models/holding-sort.type';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,11 +14,19 @@ import {
   HoldingDeleteDialogComponent,
   HoldingDeleteDialogData,
 } from '../../components/holding-delete-dialog/holding-delete-dialog';
+import { HoldingsAllocationChartComponent } from '../../components/holdings-allocation-chart/holdings-allocation-chart';
 import { filter, take } from 'rxjs';
 
 @Component({
   selector: 'app-holdings-page',
-  imports: [CurrencyPipe, DecimalPipe, MatButtonModule, MatDialogModule, MatIconModule],
+  imports: [
+    CurrencyPipe,
+    DecimalPipe,
+    HoldingsAllocationChartComponent,
+    MatButtonModule,
+    MatDialogModule,
+    MatIconModule,
+  ],
   templateUrl: './holdings-page.html',
   styleUrl: './holdings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,6 +36,29 @@ export class HoldingsPage {
   private readonly dialog = inject(MatDialog);
 
   readonly holdingViews = this.holdingsService.holdingViews;
+  readonly selectedHoldingId = signal<string | null>(null);
+  readonly sortMode = signal<HoldingsSort>('allocation');
+  readonly sortedHoldingViews = computed(() => {
+    const holdings = [...this.holdingViews()];
+
+    if (this.sortMode() === 'ticker') {
+      return holdings.sort((first, second) => first.ticker.localeCompare(second.ticker));
+    }
+
+    return holdings.sort(
+      (first, second) =>
+        second.allocationPercent - first.allocationPercent ||
+        first.ticker.localeCompare(second.ticker)
+    );
+  });
+
+  onSortChanged(sort: HoldingsSort): void {
+    this.sortMode.set(sort);
+  }
+
+  onChartSliceSelected(holding: HoldingView): void {
+    this.selectedHoldingId.set(holding.id);
+  }
 
   onAddHolding(): void {
     this.dialog

@@ -11,9 +11,15 @@
     </button>
   </div>
 
-  @if (holdingViews().length === 0) {
+  @if (sortedHoldingViews().length === 0) {
     <p class="empty-state">No holdings yet.</p>
   } @else {
+    <app-holdings-allocation-chart
+      [holdingViews]="sortedHoldingViews()"
+      (sortChanged)="onSortChanged($event)"
+      (sliceSelected)="onChartSliceSelected($event)"
+    />
+
     <div class="table-wrap">
       <table>
         <thead>
@@ -31,8 +37,8 @@
         </thead>
 
         <tbody>
-          @for (holding of holdingViews(); track holding.id) {
-            <tr>
+          @for (holding of sortedHoldingViews(); track holding.id) {
+            <tr [class.selected-row]="holding.id === selectedHoldingId()">
               <td class="ticker-cell">{{ holding.ticker }}</td>
               <td class="company-cell">{{ holding.companyName }}</td>
               <td class="numeric-column">{{ holding.shareCount }}</td>
