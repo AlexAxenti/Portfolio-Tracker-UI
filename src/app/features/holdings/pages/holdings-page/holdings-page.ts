@@ -1,11 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HoldingsService } from '../../services/holdings.service';
-import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { Holding, HoldingView } from '../../models/holding.model';
 import { HoldingsSort } from '../../models/holding-sort.type';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import {
   HoldingFormDialogComponent,
   HoldingFormDialogData,
@@ -15,17 +13,16 @@ import {
   HoldingDeleteDialogData,
 } from '../../components/holding-delete-dialog/holding-delete-dialog';
 import { HoldingsAllocationChartComponent } from '../../components/holdings-allocation-chart/holdings-allocation-chart';
+import { HoldingsTableComponent } from '../../components/holdings-table/holdings-table';
 import { filter, take } from 'rxjs';
 
 @Component({
   selector: 'app-holdings-page',
   imports: [
-    CurrencyPipe,
-    DecimalPipe,
     HoldingsAllocationChartComponent,
+    HoldingsTableComponent,
     MatButtonModule,
     MatDialogModule,
-    MatIconModule,
   ],
   templateUrl: './holdings-page.html',
   styleUrl: './holdings-page.scss',

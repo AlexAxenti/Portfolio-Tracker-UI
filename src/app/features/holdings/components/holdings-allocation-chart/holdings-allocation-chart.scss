@@ -3,7 +3,6 @@
 }
 
 .allocation-chart {
-  border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 45%, transparent);
   padding: 1.5rem;
 }
 
@@ -72,8 +71,8 @@ h2 {
 }
 
 .chart-wrap {
-  height: min(28rem, 70vw);
-  min-height: 18rem;
+  height: min(26rem, 60vw);
+  min-height: 17rem;
   position: relative;
 }
 

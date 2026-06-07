@@ -5,25 +5,27 @@
       <h2 id="allocation-chart-title">Portfolio Allocation</h2>
     </div>
 
-    <div class="sort-controls" aria-label="Sort holdings">
-      <button
-        type="button"
-        [class.is-active]="activeSort() === 'ticker'"
-        [attr.aria-pressed]="activeSort() === 'ticker'"
-        (click)="onSortChange('ticker')"
-      >
-        Sort A-Z
-      </button>
+    @if (!dashboardMode()) {
+      <div class="sort-controls" aria-label="Sort holdings">
+        <button
+          type="button"
+          [class.is-active]="activeSort() === 'ticker'"
+          [attr.aria-pressed]="activeSort() === 'ticker'"
+          (click)="onSortChange('ticker')"
+        >
+          Sort A-Z
+        </button>
 
-      <button
-        type="button"
-        [class.is-active]="activeSort() === 'allocation'"
-        [attr.aria-pressed]="activeSort() === 'allocation'"
-        (click)="onSortChange('allocation')"
-      >
-        Sort by Allocation %
-      </button>
-    </div>
+        <button
+          type="button"
+          [class.is-active]="activeSort() === 'allocation'"
+          [attr.aria-pressed]="activeSort() === 'allocation'"
+          (click)="onSortChange('allocation')"
+        >
+          Sort by Allocation %
+        </button>
+      </div>
+    }
   </div>
 
   <div class="chart-wrap">

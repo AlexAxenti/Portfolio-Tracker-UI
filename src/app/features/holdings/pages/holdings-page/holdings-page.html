@@ -14,70 +14,25 @@
   @if (sortedHoldingViews().length === 0) {
     <p class="empty-state">No holdings yet.</p>
   } @else {
-    <app-holdings-allocation-chart
-      [holdingViews]="sortedHoldingViews()"
-      (sortChanged)="onSortChanged($event)"
-      (sliceSelected)="onChartSliceSelected($event)"
-    />
+    <div class="holdings-content">
+      <div class="chart-column">
+        <app-holdings-allocation-chart
+          [holdingViews]="sortedHoldingViews()"
+          [dashboardMode]="false"
+          (sortChanged)="onSortChanged($event)"
+          (sliceSelected)="onChartSliceSelected($event)"
+        />
+      </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th class="text-column" scope="col">Ticker</th>
-            <th class="text-column company-column" scope="col">Company</th>
-            <th class="numeric-column" scope="col">Shares</th>
-            <th class="numeric-column" scope="col">Avg Cost</th>
-            <th class="numeric-column" scope="col">Current Price</th>
-            <th class="numeric-column" scope="col">Market Value</th>
-            <th class="numeric-column" scope="col">Allocation</th>
-            <th class="numeric-column" scope="col">P/L</th>
-            <th class="actions-column" scope="col">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @for (holding of sortedHoldingViews(); track holding.id) {
-            <tr [class.selected-row]="holding.id === selectedHoldingId()">
-              <td class="ticker-cell">{{ holding.ticker }}</td>
-              <td class="company-cell">{{ holding.companyName }}</td>
-              <td class="numeric-column">{{ holding.shareCount }}</td>
-              <td class="numeric-column">{{ holding.averageCost | currency }}</td>
-              <td class="numeric-column">{{ holding.effectiveCurrentPrice | currency }}</td>
-              <td class="numeric-column">{{ holding.marketValue | currency }}</td>
-              <td class="numeric-column">{{ holding.allocationPercent | number: '1.1-1' }}%</td>
-              <td class="numeric-column">
-                {{ holding.unrealizedPL | currency }}
-                <span class="percent-value">
-                  ({{ holding.unrealizedPLPercent | number: '1.1-1' }}%)
-                </span>
-              </td>
-              <td class="actions-cell">
-                <div class="action-buttons">
-                  <button
-                    mat-icon-button
-                    type="button"
-                    [attr.aria-label]="'Edit ' + holding.ticker + ' holding'"
-                    (click)="onUpdateHolding(holding)"
-                  >
-                    <mat-icon aria-hidden="true">edit</mat-icon>
-                  </button>
-
-                  <button
-                    mat-icon-button
-                    class="delete-action"
-                    type="button"
-                    [attr.aria-label]="'Delete ' + holding.ticker + ' holding'"
-                    (click)="onDeleteHolding(holding)"
-                  >
-                    <mat-icon aria-hidden="true">delete</mat-icon>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <div class="table-column">
+        <app-holdings-table
+          [holdingViews]="sortedHoldingViews()"
+          [selectedHoldingId]="selectedHoldingId()"
+          [dashboardMode]="false"
+          (editRequested)="onUpdateHolding($event)"
+          (deleteRequested)="onDeleteHolding($event)"
+        />
+      </div>
     </div>
   }
 </section>

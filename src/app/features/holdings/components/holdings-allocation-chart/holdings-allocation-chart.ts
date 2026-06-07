@@ -30,6 +30,7 @@ interface ArcLabelPosition {
 })
 export class HoldingsAllocationChartComponent {
   readonly holdingViews = input.required<HoldingView[]>();
+  readonly dashboardMode = input(false);
 
   readonly sortChanged = output<HoldingsSort>();
   readonly sliceSelected = output<HoldingView>();
