@@ -1,7 +1,9 @@
 .site-header {
   align-items: center;
-  background: var(--mat-sys-surface);
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-low, var(--mat-sys-surface));
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--mat-sys-outline-variant) 65%, transparent),
+    0 0.5rem 1.5rem color-mix(in srgb, var(--mat-sys-shadow) 10%, transparent);
   display: flex;
   gap: 1.5rem;
   min-height: 4rem;
@@ -9,7 +11,7 @@
 }
 
 .brand-link {
-  color: var(--mat-sys-on-surface);
+  color: var(--mat-sys-primary);
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -29,12 +31,21 @@
   font-weight: 500;
   padding: 0.625rem 0.875rem;
   text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  background: color-mix(in srgb, var(--mat-sys-primary) 8%, var(--mat-sys-surface-container-high));
+  color: var(--mat-sys-on-surface);
+}
+
 .nav-link.active {
-  background: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
+  background: color-mix(in srgb, var(--mat-sys-primary) 12%, var(--mat-sys-surface-container-high));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mat-sys-primary) 14%, transparent);
+  color: var(--mat-sys-primary);
 }
 
 .brand-link:focus-visible,
@@ -45,8 +56,11 @@
 
 .profile-avatar {
   align-items: center;
-  background: var(--mat-sys-secondary-container);
+  background: color-mix(in srgb, var(--mat-sys-tertiary-container) 78%, var(--mat-sys-surface));
   border-radius: 999px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent),
+    0 0.25rem 0.75rem color-mix(in srgb, var(--mat-sys-shadow) 10%, transparent);
   display: flex;
   height: 2.25rem;
   justify-content: center;
@@ -55,7 +69,7 @@
 }
 
 .profile-icon {
-  border: 2px solid var(--mat-sys-on-secondary-container);
+  border: 2px solid var(--mat-sys-on-tertiary-container);
   border-radius: 999px;
   display: block;
   height: 0.75rem;
@@ -64,7 +78,7 @@
 }
 
 .profile-icon::after {
-  border: 2px solid var(--mat-sys-on-secondary-container);
+  border: 2px solid var(--mat-sys-on-tertiary-container);
   border-radius: 999px 999px 0 0;
   border-bottom: 0;
   content: '';
