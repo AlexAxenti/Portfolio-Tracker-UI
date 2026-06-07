@@ -8,6 +8,10 @@ import {
   HoldingFormDialogComponent,
   HoldingFormDialogData,
 } from '../../components/holding-form-dialog/holding-form-dialog';
+import {
+  HoldingDeleteDialogComponent,
+  HoldingDeleteDialogData,
+} from '../../components/holding-delete-dialog/holding-delete-dialog';
 import { filter, take } from 'rxjs';
 
 @Component({
@@ -53,13 +57,19 @@ export class HoldingsPage {
   }
 
   onDeleteHolding(holding: HoldingView): void {
-    const confirmed = confirm(`Delete ${holding.ticker}?`);
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.holdingsService.deleteHolding(holding.id);
+    this.dialog
+      .open<HoldingDeleteDialogComponent, HoldingDeleteDialogData, boolean>(
+        HoldingDeleteDialogComponent,
+        {
+          data: { holding: this.toHolding(holding) },
+        }
+      )
+      .afterClosed()
+      .pipe(
+        take(1),
+        filter((confirmed) => confirmed === true)
+      )
+      .subscribe(() => this.holdingsService.deleteHolding(holding.id));
   }
 
   private toHolding(holding: HoldingView): Holding {
