@@ -1,0 +1,85 @@
+:host {
+  display: block;
+  padding: 1.5rem;
+}
+
+.trades-panel {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--mat-sys-primary) 5%, transparent),
+      transparent 11rem
+    ),
+    var(--mat-sys-surface-container-low, #111923);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 45%, transparent);
+  border-radius: 0.75rem;
+  box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--mat-sys-shadow) 18%, transparent);
+  overflow: hidden;
+}
+
+.panel-header {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1.25rem;
+}
+
+.eyebrow,
+.subtitle {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  color: var(--mat-sys-on-surface);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.1;
+  margin: 0.25rem 0;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+}
+
+.add-button {
+  border-radius: 999px;
+  flex: 0 0 auto;
+  font-weight: 700;
+  min-height: 2.75rem;
+  padding-inline: 1.25rem;
+}
+
+.empty-state {
+  border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 45%, transparent);
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+  padding: 2rem 1.5rem;
+}
+
+.trades-content {
+  border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 45%, transparent);
+  min-width: 0;
+}
+
+@media (max-width: 48rem) {
+  :host {
+    padding: 1rem;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .add-button {
+    align-self: stretch;
+  }
+}

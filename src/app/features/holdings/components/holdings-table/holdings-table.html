@@ -22,8 +22,8 @@
           <td class="ticker-cell">{{ holding.ticker }}</td>
           <td class="company-cell">{{ holding.companyName }}</td>
           <td class="numeric-column">{{ holding.shareCount }}</td>
-          <td class="numeric-column">{{ holding.averageCost | currency }}</td>
-          <td class="numeric-column">{{ holding.effectiveCurrentPrice | currency }}</td>
+          <td class="numeric-column">{{ holding.averageCost | currency: 'USD': 'symbol': '1.2-3' }}</td>
+          <td class="numeric-column">{{ holding.effectiveCurrentPrice | currency: 'USD': 'symbol': '1.2-3' }}</td>
           <td class="numeric-column">{{ holding.marketValue | currency }}</td>
           <td class="numeric-column">{{ holding.allocationPercent | number: '1.1-1' }}%</td>
           <td class="numeric-column">

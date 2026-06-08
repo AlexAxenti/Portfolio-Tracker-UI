@@ -63,6 +63,14 @@ export class HoldingsService {
     this.holdings.update((holdings) => [...holdings, holding]);
   }
 
+  getHoldings(): Holding[] {
+    return this.holdings();
+  }
+
+  replaceHoldings(holdings: Holding[]): void {
+    this.holdings.set(holdings);
+  }
+
   updateHolding(updatedHolding: Holding): void {
     this.holdings.update((holdings) =>
       holdings.map((holding) =>

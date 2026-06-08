@@ -12,5 +12,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/holdings/pages/holdings-page/holdings-page')
         .then(m => m.HoldingsPage)
+  },
+  {
+    path: 'trades',
+    loadComponent: () =>
+      import('./features/trades/pages/trades-page/trades-page')
+        .then(m => m.TradesPage)
   }
 ];

@@ -49,12 +49,12 @@ export class HoldingFormDialogComponent {
       this.holding?.companyName ?? '',
       [Validators.maxLength(120)]
     ),
-    shareCount: this.formBuilder.nonNullable.control(
-      this.holding?.shareCount ?? 1,
+    shareCount: this.formBuilder.control<number | null>(
+      this.holding?.shareCount ?? null,
       [Validators.required, Validators.min(0.01)]
     ),
-    averageCost: this.formBuilder.nonNullable.control(
-      this.holding?.averageCost ?? 1,
+    averageCost: this.formBuilder.control<number | null>(
+      this.holding?.averageCost ? this.roundToThreeDecimals(this.holding.averageCost) : null,
       [Validators.required, Validators.min(0.01)]
     ),
   });
@@ -89,17 +89,26 @@ export class HoldingFormDialogComponent {
 
     const now = new Date().toISOString();
     const formValue = this.form.getRawValue();
+
+    if (formValue.shareCount === null || formValue.averageCost === null) {
+      return;
+    }
+
     const holding: Holding = {
       ...this.holding,
       id: this.holding?.id ?? crypto.randomUUID(),
       ticker: formValue.ticker.trim().toUpperCase(),
       companyName: formValue.companyName.trim() || undefined,
       shareCount: formValue.shareCount,
-      averageCost: formValue.averageCost,
+      averageCost: this.roundToThreeDecimals(formValue.averageCost),
       createdAt: this.holding?.createdAt ?? now,
       updatedAt: now,
     };
 
     this.dialogRef.close(holding);
+  }
+
+  private roundToThreeDecimals(value: number): number {
+    return Math.round(value * 1000) / 1000;
   }
 }
