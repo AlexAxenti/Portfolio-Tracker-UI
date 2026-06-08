@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +8,8 @@ import { Holding } from '../../models/holding.model';
 
 export interface HoldingFormDialogData {
   holding?: Holding;
+  errorMessage?: string;
+  mode?: 'create' | 'edit';
 }
 
 type HoldingFormControlName =
@@ -36,9 +38,10 @@ export class HoldingFormDialogComponent {
 
   private readonly holding = this.data?.holding;
 
-  readonly isEditMode = Boolean(this.holding);
+  readonly isEditMode = this.data?.mode === 'edit' || (!this.data?.mode && Boolean(this.holding));
   readonly title = this.isEditMode ? 'Edit Holding' : 'Add Holding';
   readonly submitLabel = this.isEditMode ? 'Save Changes' : 'Add Holding';
+  readonly errorMessage = this.data?.errorMessage;
 
   readonly form = this.formBuilder.group({
     ticker: this.formBuilder.nonNullable.control(
@@ -97,6 +100,7 @@ export class HoldingFormDialogComponent {
     const holding: Holding = {
       ...this.holding,
       id: this.holding?.id ?? crypto.randomUUID(),
+      userId: this.holding?.userId ?? 'temp',
       ticker: formValue.ticker.trim().toUpperCase(),
       companyName: formValue.companyName.trim() || undefined,
       shareCount: formValue.shareCount,

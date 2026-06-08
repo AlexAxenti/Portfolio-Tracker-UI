@@ -5,48 +5,8 @@ import { Holding, HoldingView } from '../models/holding.model';
   providedIn: 'root',
 })
 export class HoldingsService {
-  private readonly holdings = signal<Holding[]>([
-    {
-      id: '1',
-      ticker: 'OSCR',
-      companyName: 'Oscar Health',
-      shareCount: 25,
-      averageCost: 18,
-      currentPrice: 21,
-      sector: 'Healthcare',
-      categories: ['Growth', 'Small Cap'],
-      notes: 'Thought earnings looked strong.',
-      purchaseDate: '2026-06-06',
-      createdAt: '2026-06-06T10:00:00Z',
-      updatedAt: '2026-06-06T10:00:00Z',
-    },
-    {
-      id: '2',
-      ticker: 'SHOP',
-      companyName: 'Shopify',
-      shareCount: 5,
-      averageCost: 95,
-      currentPrice: 102,
-      sector: 'Technology',
-      categories: ['Canadian', 'Growth'],
-      notes: 'Retested breakout level.',
-      createdAt: '2026-06-06T10:00:00Z',
-      updatedAt: '2026-06-06T10:00:00Z',
-    },
-    {
-      id: '3',
-      ticker: 'PEP',
-      companyName: 'PepsiCo',
-      shareCount: 3,
-      averageCost: 170,
-      sector: 'Consumer Defensive',
-      categories: ['Dividend', 'Defensive'],
-      notes: 'No live price yet, fallback to average cost.',
-      createdAt: '2026-06-06T10:00:00Z',
-      updatedAt: '2026-06-06T10:00:00Z',
-    },
-  ]);
-
+  private readonly tempUserId = 'temp';
+  private readonly holdings = signal<Holding[]>([]);
 
   readonly holdingViews = computed<HoldingView[]>(() => {
     const holdings = this.holdings();
@@ -60,7 +20,13 @@ export class HoldingsService {
   });
 
   addHolding(holding: Holding): void {
-    this.holdings.update((holdings) => [...holdings, holding]);
+    const normalizedHolding = this.normalizeHolding(holding);
+
+    if (this.hasDuplicateTicker(normalizedHolding.ticker, normalizedHolding.userId)) {
+      throw new Error(`You already own ${normalizedHolding.ticker}.`);
+    }
+
+    this.holdings.update((holdings) => [...holdings, normalizedHolding]);
   }
 
   getHoldings(): Holding[] {
@@ -68,13 +34,25 @@ export class HoldingsService {
   }
 
   replaceHoldings(holdings: Holding[]): void {
-    this.holdings.set(holdings);
+    this.holdings.set(holdings.map((holding) => this.normalizeHolding(holding)));
   }
 
   updateHolding(updatedHolding: Holding): void {
+    const normalizedHolding = this.normalizeHolding(updatedHolding);
+
+    if (
+      this.hasDuplicateTicker(
+        normalizedHolding.ticker,
+        normalizedHolding.userId,
+        normalizedHolding.id
+      )
+    ) {
+      throw new Error(`You already own ${normalizedHolding.ticker}.`);
+    }
+
     this.holdings.update((holdings) =>
       holdings.map((holding) =>
-        holding.id === updatedHolding.id ? updatedHolding : holding
+        holding.id === normalizedHolding.id ? normalizedHolding : holding
       )
     );
   }
@@ -103,5 +81,22 @@ export class HoldingsService {
       unrealizedPLPercent,
       allocationPercent,
     }
+  }
+
+  private normalizeHolding(holding: Holding): Holding {
+    return {
+      ...holding,
+      userId: holding.userId || this.tempUserId,
+      ticker: holding.ticker.trim().toUpperCase(),
+    };
+  }
+
+  private hasDuplicateTicker(ticker: string, userId: string, ignoredHoldingId?: string): boolean {
+    return this.holdings().some(
+      (holding) =>
+        holding.userId === userId &&
+        holding.ticker === ticker &&
+        holding.id !== ignoredHoldingId
+    );
   }
 }

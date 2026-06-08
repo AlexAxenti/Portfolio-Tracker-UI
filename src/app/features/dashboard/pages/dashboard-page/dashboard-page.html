@@ -1,1 +1,60 @@
-<a routerLink="/holdings">Go to Holdings</a>
+<section class="dashboard-panel" aria-labelledby="dashboard-title">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1 id="dashboard-title">Dashboard</h1>
+      <p class="subtitle">Portfolio overview and recent trade history</p>
+    </div>
+
+    <button mat-flat-button class="add-button" type="button" (click)="onAddTrade()">
+      Add Trade
+    </button>
+  </div>
+
+  @if (sortedHoldingViews().length === 0) {
+    <div class="empty-state holdings-empty-state">
+      <p>No holdings yet.</p>
+      <div class="empty-actions" aria-label="Dashboard empty holdings actions">
+        <button mat-flat-button type="button" (click)="onAddTrade()">
+          Add a new trade
+        </button>
+        OR
+        <a mat-stroked-button routerLink="/holdings">
+          Go to holdings
+        </a>
+      </div>
+      <p>to import existing holdings.</p>
+    </div>
+  } @else {
+    <div class="holdings-content">
+      <div class="chart-column">
+        <app-holdings-allocation-chart
+          [holdingViews]="sortedHoldingViews()"
+          [dashboardMode]="true"
+          (sliceSelected)="onChartSliceSelected($event)"
+        />
+      </div>
+
+      <div class="table-column">
+        <app-holdings-table
+          [holdingViews]="sortedHoldingViews()"
+          [selectedHoldingId]="selectedHoldingId()"
+          [dashboardMode]="true"
+        />
+      </div>
+    </div>
+  }
+
+  <section class="trades-section" aria-labelledby="dashboard-trades-title">
+    <div class="section-header">
+      <p class="eyebrow">Trades</p>
+      <h2 id="dashboard-trades-title">Trade History</h2>
+    </div>
+
+    @if (trades().length === 0) {
+      <p class="empty-state compact">No trades yet.</p>
+    } @else {
+      <app-trades-list [trades]="trades()" [dashboardMode]="true" />
+    }
+  </section>
+</section>

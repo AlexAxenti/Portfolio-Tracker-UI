@@ -7,6 +7,18 @@
   overflow-x: auto;
 }
 
+:host(.dashboard-table) .table-wrap {
+  max-height: 27rem;
+  overflow: auto;
+}
+
+:host(.dashboard-table) th {
+  background: var(--mat-sys-surface-container-low, #111923);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 table {
   border-collapse: collapse;
   min-width: 58rem;

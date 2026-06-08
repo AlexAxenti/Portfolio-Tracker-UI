@@ -58,32 +58,11 @@ export class HoldingsPage {
   }
 
   onAddHolding(): void {
-    this.dialog
-      .open<HoldingFormDialogComponent, HoldingFormDialogData, Holding>(
-        HoldingFormDialogComponent
-      )
-      .afterClosed()
-      .pipe(
-        take(1),
-        filter((holding): holding is Holding => Boolean(holding))
-      )
-      .subscribe((holding) => this.holdingsService.addHolding(holding));
+    this.openAddHoldingDialog();
   }
 
   onUpdateHolding(holding: HoldingView): void {
-    this.dialog
-      .open<HoldingFormDialogComponent, HoldingFormDialogData, Holding>(
-        HoldingFormDialogComponent,
-        {
-          data: { holding: this.toHolding(holding) },
-        }
-      )
-      .afterClosed()
-      .pipe(
-        take(1),
-        filter((updatedHolding): updatedHolding is Holding => Boolean(updatedHolding))
-      )
-      .subscribe((updatedHolding) => this.holdingsService.updateHolding(updatedHolding));
+    this.openUpdateHoldingDialog(this.toHolding(holding));
   }
 
   onDeleteHolding(holding: HoldingView): void {
@@ -102,9 +81,54 @@ export class HoldingsPage {
       .subscribe(() => this.holdingsService.deleteHolding(holding.id));
   }
 
+  private openAddHoldingDialog(holding?: Holding, errorMessage?: string): void {
+    this.dialog
+      .open<HoldingFormDialogComponent, HoldingFormDialogData, Holding>(
+        HoldingFormDialogComponent,
+        {
+          data: { holding, errorMessage, mode: 'create' },
+        }
+      )
+      .afterClosed()
+      .pipe(
+        take(1),
+        filter((result): result is Holding => Boolean(result))
+      )
+      .subscribe((result) => {
+        try {
+          this.holdingsService.addHolding(result);
+        } catch (error) {
+          this.openAddHoldingDialog(result, this.toErrorMessage(error));
+        }
+      });
+  }
+
+  private openUpdateHoldingDialog(holding: Holding, errorMessage?: string): void {
+    this.dialog
+      .open<HoldingFormDialogComponent, HoldingFormDialogData, Holding>(
+        HoldingFormDialogComponent,
+        {
+          data: { holding, errorMessage, mode: 'edit' },
+        }
+      )
+      .afterClosed()
+      .pipe(
+        take(1),
+        filter((updatedHolding): updatedHolding is Holding => Boolean(updatedHolding))
+      )
+      .subscribe((updatedHolding) => {
+        try {
+          this.holdingsService.updateHolding(updatedHolding);
+        } catch (error) {
+          this.openUpdateHoldingDialog(updatedHolding, this.toErrorMessage(error));
+        }
+      });
+  }
+
   private toHolding(holding: HoldingView): Holding {
     return {
       id: holding.id,
+      userId: holding.userId,
       ticker: holding.ticker,
       companyName: holding.companyName,
       shareCount: holding.shareCount,
@@ -118,5 +142,9 @@ export class HoldingsPage {
       createdAt: holding.createdAt,
       updatedAt: holding.updatedAt,
     };
+  }
+
+  private toErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Holding changes could not be applied.';
   }
 }

@@ -9,6 +9,7 @@ import { Trade, TradeInput } from '../models/trade.model';
 export class TradeService {
   private readonly holdingsService = inject(HoldingsService);
   private readonly holdingSnapshots = new Map<string, Holding>();
+  private readonly tempUserId = 'temp';
 
   readonly trades = signal<Trade[]>([]);
 
@@ -18,13 +19,16 @@ export class TradeService {
 
   getTradesByTicker(ticker: string): Trade[] {
     const normalizedTicker = this.normalizeTicker(ticker);
-    return this.trades().filter((trade) => trade.ticker === normalizedTicker);
+    return this.trades().filter(
+      (trade) => trade.ticker === normalizedTicker && trade.userId === this.tempUserId
+    );
   }
 
   createTrade(input: TradeInput): Trade {
     const trade: Trade = {
       ...input,
       id: crypto.randomUUID(),
+      userId: this.tempUserId,
       ticker: this.normalizeTicker(input.ticker),
       price: this.roundToThreeDecimals(input.price),
       notes: input.notes?.trim() || undefined,
@@ -49,6 +53,7 @@ export class TradeService {
     const updatedTrade: Trade = {
       ...input,
       id,
+      userId: existingTrade.userId || this.tempUserId,
       ticker: this.normalizeTicker(input.ticker),
       price: this.roundToThreeDecimals(input.price),
       notes: input.notes?.trim() || undefined,
@@ -94,7 +99,7 @@ export class TradeService {
   }
 
   private applyBuyTrade(holdings: Holding[], trade: Trade): Holding[] {
-    const holding = holdings.find((item) => item.ticker === trade.ticker);
+    const holding = this.findHoldingForTrade(holdings, trade);
     const now = new Date().toISOString();
 
     if (!holding) {
@@ -102,6 +107,7 @@ export class TradeService {
         ...holdings,
         {
           id: crypto.randomUUID(),
+          userId: trade.userId || this.tempUserId,
           ticker: trade.ticker,
           shareCount: trade.quantity,
           averageCost: this.roundToThreeDecimals(trade.price),
@@ -133,7 +139,7 @@ export class TradeService {
   }
 
   private applySellTrade(holdings: Holding[], trade: Trade): Holding[] {
-    const holding = holdings.find((item) => item.ticker === trade.ticker);
+    const holding = this.findHoldingForTrade(holdings, trade);
 
     if (!holding) {
       throw new Error(`You do not own ${trade.ticker}.`);
@@ -163,7 +169,7 @@ export class TradeService {
   }
 
   private reverseBuyTrade(holdings: Holding[], trade: Trade): Holding[] {
-    const holding = holdings.find((item) => item.ticker === trade.ticker);
+    const holding = this.findHoldingForTrade(holdings, trade);
 
     if (!holding || holding.shareCount < trade.quantity) {
       throw new Error(`Cannot safely reverse the ${trade.ticker} buy trade.`);
@@ -197,7 +203,7 @@ export class TradeService {
   }
 
   private reverseSellTrade(holdings: Holding[], trade: Trade): Holding[] {
-    const holding = holdings.find((item) => item.ticker === trade.ticker);
+    const holding = this.findHoldingForTrade(holdings, trade);
     const previousHolding = this.holdingSnapshots.get(trade.id);
     const now = new Date().toISOString();
 
@@ -234,7 +240,7 @@ export class TradeService {
       return;
     }
 
-    const holding = holdings.find((item) => item.ticker === trade.ticker);
+    const holding = this.findHoldingForTrade(holdings, trade);
 
     if (holding) {
       this.holdingSnapshots.set(trade.id, { ...holding });
@@ -243,6 +249,14 @@ export class TradeService {
 
   private normalizeTicker(ticker: string): string {
     return ticker.trim().toUpperCase();
+  }
+
+  private findHoldingForTrade(holdings: Holding[], trade: Trade): Holding | undefined {
+    return holdings.find(
+      (holding) =>
+        holding.ticker === trade.ticker &&
+        holding.userId === (trade.userId || this.tempUserId)
+    );
   }
 
   private roundToThreeDecimals(value: number): number {

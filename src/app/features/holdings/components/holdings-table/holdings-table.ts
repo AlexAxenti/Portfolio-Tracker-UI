@@ -9,6 +9,9 @@ import { HoldingView } from '../../models/holding.model';
   imports: [CurrencyPipe, DecimalPipe, MatButtonModule, MatIconModule],
   templateUrl: './holdings-table.html',
   styleUrl: './holdings-table.scss',
+  host: {
+    '[class.dashboard-table]': 'dashboardMode()',
+  },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HoldingsTableComponent {
