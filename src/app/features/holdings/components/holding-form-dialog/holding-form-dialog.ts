@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +8,8 @@ import { Holding } from '../../models/holding.model';
 
 export interface HoldingFormDialogData {
   holding?: Holding;
+  errorMessage?: string;
+  mode?: 'create' | 'edit';
 }
 
 type HoldingFormControlName =
@@ -36,9 +38,10 @@ export class HoldingFormDialogComponent {
 
   private readonly holding = this.data?.holding;
 
-  readonly isEditMode = Boolean(this.holding);
+  readonly isEditMode = this.data?.mode === 'edit' || (!this.data?.mode && Boolean(this.holding));
   readonly title = this.isEditMode ? 'Edit Holding' : 'Add Holding';
   readonly submitLabel = this.isEditMode ? 'Save Changes' : 'Add Holding';
+  readonly errorMessage = this.data?.errorMessage;
 
   readonly form = this.formBuilder.group({
     ticker: this.formBuilder.nonNullable.control(
@@ -49,12 +52,12 @@ export class HoldingFormDialogComponent {
       this.holding?.companyName ?? '',
       [Validators.maxLength(120)]
     ),
-    shareCount: this.formBuilder.nonNullable.control(
-      this.holding?.shareCount ?? 1,
+    shareCount: this.formBuilder.control<number | null>(
+      this.holding?.shareCount ?? null,
       [Validators.required, Validators.min(0.01)]
     ),
-    averageCost: this.formBuilder.nonNullable.control(
-      this.holding?.averageCost ?? 1,
+    averageCost: this.formBuilder.control<number | null>(
+      this.holding?.averageCost ? this.roundToThreeDecimals(this.holding.averageCost) : null,
       [Validators.required, Validators.min(0.01)]
     ),
   });
@@ -89,17 +92,27 @@ export class HoldingFormDialogComponent {
 
     const now = new Date().toISOString();
     const formValue = this.form.getRawValue();
+
+    if (formValue.shareCount === null || formValue.averageCost === null) {
+      return;
+    }
+
     const holding: Holding = {
       ...this.holding,
       id: this.holding?.id ?? crypto.randomUUID(),
+      userId: this.holding?.userId ?? 'temp',
       ticker: formValue.ticker.trim().toUpperCase(),
       companyName: formValue.companyName.trim() || undefined,
       shareCount: formValue.shareCount,
-      averageCost: formValue.averageCost,
+      averageCost: this.roundToThreeDecimals(formValue.averageCost),
       createdAt: this.holding?.createdAt ?? now,
       updatedAt: now,
     };
 
     this.dialogRef.close(holding);
+  }
+
+  private roundToThreeDecimals(value: number): number {
+    return Math.round(value * 1000) / 1000;
   }
 }

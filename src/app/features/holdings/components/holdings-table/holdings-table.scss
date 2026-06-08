@@ -1,0 +1,140 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+:host(.dashboard-table) .table-wrap {
+  max-height: 27rem;
+  overflow: auto;
+}
+
+:host(.dashboard-table) th {
+  background: var(--mat-sys-surface-container-low, #111923);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+table {
+  border-collapse: collapse;
+  min-width: 58rem;
+  width: 100%;
+}
+
+th,
+td {
+  padding: 1rem 1.25rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+th {
+  border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 55%, transparent);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+td {
+  border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 28%, transparent);
+  color: var(--mat-sys-on-surface);
+  font-weight: 500;
+}
+
+tbody tr {
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+tbody tr:hover {
+  background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+}
+
+tbody tr.selected-row {
+  background: color-mix(in srgb, var(--mat-sys-primary) 14%, transparent);
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.text-column,
+.ticker-cell,
+.company-cell {
+  text-align: left;
+}
+
+.numeric-column {
+  text-align: right;
+}
+
+.actions-column,
+.actions-cell {
+  text-align: center;
+}
+
+.actions-column {
+  width: 7rem;
+}
+
+.company-column {
+  min-width: 10rem;
+}
+
+.ticker-cell {
+  color: var(--mat-sys-primary);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.company-cell {
+  color: var(--mat-sys-on-surface);
+}
+
+.percent-value {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.action-buttons {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.action-buttons button {
+  border-radius: 999px;
+  color: var(--mat-sys-primary);
+  height: 2.5rem;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+  width: 2.5rem;
+}
+
+.action-buttons mat-icon {
+  font-size: 1.25rem;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.action-buttons button:hover {
+  background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+  color: var(--mat-sys-primary);
+}
+
+.action-buttons .delete-action {
+  color: var(--mat-sys-error);
+}
+
+.action-buttons .delete-action:hover {
+  background: color-mix(in srgb, var(--mat-sys-error) 12%, transparent);
+  color: var(--mat-sys-error);
+}

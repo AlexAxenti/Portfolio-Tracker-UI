@@ -1,0 +1,26 @@
+<section class="trades-panel" aria-labelledby="trades-title">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Trades</p>
+      <h1 id="trades-title">Trades</h1>
+      <p class="subtitle">Log buys and sells while keeping holdings in sync</p>
+    </div>
+
+    <button mat-flat-button class="add-button" type="button" (click)="onAddTrade()">
+      Add Trade
+    </button>
+  </div>
+
+  @if (trades().length === 0) {
+    <p class="empty-state">No trades yet.</p>
+  } @else {
+    <div class="trades-content">
+      <app-trades-list
+        [trades]="trades()"
+        [dashboardMode]="false"
+        (editRequested)="onEditTrade($event)"
+        (deleteRequested)="onDeleteTrade($event)"
+      />
+    </div>
+  }
+</section>

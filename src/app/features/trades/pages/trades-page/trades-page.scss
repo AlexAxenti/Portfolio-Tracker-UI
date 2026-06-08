@@ -3,7 +3,7 @@
   padding: 1.5rem;
 }
 
-.dashboard-panel {
+.trades-panel {
   background:
     linear-gradient(
       180deg,
@@ -45,13 +45,6 @@ h1 {
   margin: 0.25rem 0;
 }
 
-h2 {
-  color: var(--mat-sys-on-surface);
-  font-size: 1.25rem;
-  line-height: 1.2;
-  margin: 0.25rem 0 0;
-}
-
 .subtitle {
   font-size: 0.95rem;
 }
@@ -71,56 +64,9 @@ h2 {
   padding: 2rem 1.5rem;
 }
 
-.holdings-empty-state {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.holdings-empty-state p {
-  margin: 0;
-}
-
-.empty-actions {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.empty-actions a,
-.empty-actions button {
-  border-radius: 999px;
-  font-weight: 700;
-}
-
-.empty-state.compact {
-  padding: 1.5rem;
-}
-
-.holdings-content {
+.trades-content {
   border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 45%, transparent);
-  display: grid;
-  grid-template-columns: minmax(20rem, 35%) minmax(0, 1fr);
-  min-height: 30rem;
-}
-
-.chart-column {
-  border-right: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 35%, transparent);
   min-width: 0;
-}
-
-.table-column {
-  min-width: 0;
-}
-
-.trades-section {
-  border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 45%, transparent);
-}
-
-.section-header {
-  padding: 1.5rem 1.5rem 1.25rem;
 }
 
 @media (max-width: 48rem) {
@@ -135,16 +81,5 @@ h2 {
 
   .add-button {
     align-self: stretch;
-  }
-}
-
-@media (max-width: 64rem) {
-  .holdings-content {
-    display: block;
-  }
-
-  .chart-column {
-    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 35%, transparent);
-    border-right: 0;
   }
 }

@@ -1,0 +1,56 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th class="text-column" scope="col">Ticker</th>
+        <th class="text-column" scope="col">Type</th>
+        <th class="numeric-column" scope="col">Quantity</th>
+        <th class="numeric-column" scope="col">Price</th>
+        <th class="text-column" scope="col">Date</th>
+        @if (!dashboardMode()) {
+          <th class="actions-column" scope="col">Actions</th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (trade of trades(); track trade.id) {
+        <tr>
+          <td class="ticker-cell">{{ trade.ticker }}</td>
+          <td>
+            <span class="trade-type" [class.sell-type]="trade.type === 'sell'">
+              {{ trade.type }}
+            </span>
+          </td>
+          <td class="numeric-column">{{ trade.quantity }}</td>
+          <td class="numeric-column">{{ trade.price | currency: 'USD': 'symbol': '1.2-3' }}</td>
+          <td>{{ formatTradeDate(trade.tradeDate) }}</td>
+          @if (!dashboardMode()) {
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <button
+                  mat-icon-button
+                  type="button"
+                  [attr.aria-label]="'Edit ' + trade.ticker + ' trade'"
+                  (click)="editRequested.emit(trade)"
+                >
+                  <mat-icon aria-hidden="true">edit</mat-icon>
+                </button>
+
+                <button
+                  mat-icon-button
+                  class="delete-action"
+                  type="button"
+                  [attr.aria-label]="'Delete ' + trade.ticker + ' trade'"
+                  (click)="deleteRequested.emit(trade)"
+                >
+                  <mat-icon aria-hidden="true">delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -15,10 +15,14 @@
     <a class="nav-link" routerLink="/holdings" routerLinkActive="active">
       Holdings
     </a>
-    <a class="nav-link" routerLink="/holdings" routerLinkActive="active">
+    <a class="nav-link" routerLink="/trades" routerLinkActive="active">
       Trades
     </a>
   </nav>
+
+  <button mat-flat-button class="header-trade-button" type="button" (click)="onAddTrade()">
+    Add Trade
+  </button>
 
   <div class="profile-avatar" aria-hidden="true">
     <span class="profile-icon"></span>

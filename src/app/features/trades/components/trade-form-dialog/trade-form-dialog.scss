@@ -1,0 +1,66 @@
+.trade-form {
+  display: block;
+  min-width: min(30rem, 80vw);
+}
+
+mat-dialog-content {
+  display: grid;
+  gap: 1rem;
+  padding-top: 0.25rem;
+}
+
+mat-form-field,
+mat-button-toggle-group {
+  width: 100%;
+}
+
+mat-button-toggle {
+  flex: 1 1 0;
+}
+
+.type-toggle .buy-toggle.mat-button-toggle-checked {
+  --mat-button-toggle-selected-state-background-color: #146c43;
+  --mat-button-toggle-selected-state-text-color: #ffffff;
+
+  background: #146c43;
+  color: #ffffff;
+}
+
+.type-toggle .sell-toggle.mat-button-toggle-checked {
+  --mat-button-toggle-selected-state-background-color: #b3261e;
+  --mat-button-toggle-selected-state-text-color: #ffffff;
+
+  background: #b3261e;
+  color: #ffffff;
+}
+
+input[formControlName='ticker'] {
+  text-transform: uppercase;
+}
+
+.number-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field-error,
+.form-error {
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-small);
+  margin: 0.25rem 0 0;
+}
+
+.form-error {
+  margin: 0;
+}
+
+@media (max-width: 36rem) {
+  .trade-form {
+    min-width: 0;
+  }
+
+  .number-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,43 @@
+<section class="allocation-chart" aria-labelledby="allocation-chart-title">
+  <div class="chart-header">
+    <div>
+      <p class="eyebrow">Allocation</p>
+      <h2 id="allocation-chart-title">Portfolio Allocation</h2>
+    </div>
+
+    @if (!dashboardMode()) {
+      <div class="sort-controls" aria-label="Sort holdings">
+        <button
+          type="button"
+          [class.is-active]="activeSort() === 'ticker'"
+          [attr.aria-pressed]="activeSort() === 'ticker'"
+          (click)="onSortChange('ticker')"
+        >
+          Sort A-Z
+        </button>
+
+        <button
+          type="button"
+          [class.is-active]="activeSort() === 'allocation'"
+          [attr.aria-pressed]="activeSort() === 'allocation'"
+          (click)="onSortChange('allocation')"
+        >
+          Sort by Allocation %
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="chart-wrap">
+    <canvas
+      baseChart
+      type="pie"
+      [data]="chartData()"
+      [options]="chartOptions"
+      [plugins]="chartPlugins"
+      [attr.aria-label]="chartAriaLabel()"
+      role="img"
+      (chartClick)="onChartClick($event)"
+    ></canvas>
+  </div>
+</section>
