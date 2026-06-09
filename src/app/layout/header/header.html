@@ -1,21 +1,21 @@
 <header class="site-header">
-  <a class="brand-link" routerLink="/" aria-label="Portfolio Tracker home">
+  <a class="brand-link" routerLink="/dashboard" aria-label="Portfolio Tracker dashboard">
     Portfolio Tracker
   </a>
 
   <nav class="primary-nav" aria-label="Primary navigation">
     <a
       class="nav-link"
-      routerLink="/"
+      routerLink="/dashboard"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
     >
       Dashboard
     </a>
-    <a class="nav-link" routerLink="/holdings" routerLinkActive="active">
+    <a class="nav-link" routerLink="/dashboard/holdings" routerLinkActive="active">
       Holdings
     </a>
-    <a class="nav-link" routerLink="/trades" routerLinkActive="active">
+    <a class="nav-link" routerLink="/dashboard/trades" routerLinkActive="active">
       Trades
     </a>
   </nav>
@@ -24,7 +24,13 @@
     Add Trade
   </button>
 
-  <div class="profile-avatar" aria-hidden="true">
+  <button
+    class="profile-avatar"
+    type="button"
+    aria-label="Log out"
+    title="Log out"
+    (click)="onLogout()"
+  >
     <span class="profile-icon"></span>
-  </div>
+  </button>
 </header>

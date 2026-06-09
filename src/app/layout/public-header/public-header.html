@@ -1,0 +1,19 @@
+<header class="site-header">
+  <a class="brand-link" routerLink="/" aria-label="Portfolio Tracker home">
+    Portfolio Tracker
+  </a>
+
+  <nav class="public-nav" aria-label="Public navigation">
+    <a
+      class="nav-link"
+      routerLink="/login"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Login
+    </a>
+    <a mat-flat-button class="register-link" routerLink="/register">
+      Register
+    </a>
+  </nav>
+</header>

@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, take } from 'rxjs';
+import { AuthService } from '../../core/auth/auth.service';
 import { HoldingsService } from '../../features/holdings/services/holdings.service';
 import {
   TradeFormDialogComponent,
@@ -22,6 +23,8 @@ export class Header implements OnInit {
   private readonly holdingsService = inject(HoldingsService);
   private readonly tradeService = inject(TradeService);
   private readonly dialog = inject(MatDialog);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   readonly tickerOptions = computed(() =>
     this.holdingsService
@@ -37,6 +40,11 @@ export class Header implements OnInit {
 
   onAddTrade(): void {
     this.openCreateTradeDialog();
+  }
+
+  async onLogout(): Promise<void> {
+    await this.authService.signOut();
+    await this.router.navigate(['/login']);
   }
 
   private openCreateTradeDialog(trade?: TradeInput, errorMessage?: string): void {
