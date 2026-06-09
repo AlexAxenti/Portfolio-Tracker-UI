@@ -1,11 +1,16 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, catchError, throwError, tap } from 'rxjs';
+import { toReadableHttpError } from '../../../core/http-error';
+import { environment } from '../../../../environments/environment';
 import { Holding, HoldingView } from '../models/holding.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HoldingsService {
-  private readonly tempUserId = 'temp';
+  private readonly http = inject(HttpClient);
+  private readonly holdingsUrl = `${environment.apiUrl}/api/holdings`;
   private readonly holdings = signal<Holding[]>([]);
 
   readonly holdingViews = computed<HoldingView[]>(() => {
@@ -19,14 +24,31 @@ export class HoldingsService {
     return holdings.map((holding) => this.calculateHoldingView(holding, totalPortfolioValue));
   });
 
-  addHolding(holding: Holding): void {
-    const normalizedHolding = this.normalizeHolding(holding);
+  loadHoldings(): Observable<Holding[]> {
+    return this.http.get<Holding[]>(this.holdingsUrl).pipe(
+      tap((holdings) => this.holdings.set(holdings)),
+      catchError((error) =>
+        throwError(() => toReadableHttpError(error, 'Holdings could not be loaded.'))
+      )
+    );
+  }
 
-    if (this.hasDuplicateTicker(normalizedHolding.ticker, normalizedHolding.userId)) {
-      throw new Error(`You already own ${normalizedHolding.ticker}.`);
-    }
+  refreshPrices(): Observable<Holding[]> {
+    return this.http.post<Holding[]>(`${this.holdingsUrl}/refresh-prices`, {}).pipe(
+      tap((holdings) => this.holdings.set(holdings)),
+      catchError((error) =>
+        throwError(() => toReadableHttpError(error, 'Holding prices could not be refreshed.'))
+      )
+    );
+  }
 
-    this.holdings.update((holdings) => [...holdings, normalizedHolding]);
+  addHolding(holding: Holding): Observable<Holding> {
+    return this.http.post<Holding>(this.holdingsUrl, this.toHoldingRequest(holding)).pipe(
+      tap((createdHolding) => this.holdings.update((holdings) => [...holdings, createdHolding])),
+      catchError((error) =>
+        throwError(() => toReadableHttpError(error, 'Holding changes could not be applied.'))
+      )
+    );
   }
 
   getHoldings(): Holding[] {
@@ -34,32 +56,39 @@ export class HoldingsService {
   }
 
   replaceHoldings(holdings: Holding[]): void {
-    this.holdings.set(holdings.map((holding) => this.normalizeHolding(holding)));
+    this.holdings.set(holdings);
   }
 
-  updateHolding(updatedHolding: Holding): void {
-    const normalizedHolding = this.normalizeHolding(updatedHolding);
-
-    if (
-      this.hasDuplicateTicker(
-        normalizedHolding.ticker,
-        normalizedHolding.userId,
-        normalizedHolding.id
+  updateHolding(updatedHolding: Holding): Observable<Holding> {
+    return this.http
+      .put<Holding>(
+        `${this.holdingsUrl}/${updatedHolding.id}`,
+        this.toHoldingRequest(updatedHolding)
       )
-    ) {
-      throw new Error(`You already own ${normalizedHolding.ticker}.`);
-    }
-
-    this.holdings.update((holdings) =>
-      holdings.map((holding) =>
-        holding.id === normalizedHolding.id ? normalizedHolding : holding
-      )
+      .pipe(
+        tap((savedHolding) =>
+          this.holdings.update((holdings) =>
+            holdings.map((holding) =>
+              holding.id === savedHolding.id ? savedHolding : holding
+            )
+          )
+        ),
+        catchError((error) =>
+          throwError(() => toReadableHttpError(error, 'Holding changes could not be applied.'))
+        )
     );
   }
 
-  deleteHolding(id: string): void {
-    this.holdings.update((holdings) =>
-      holdings.filter((holding) => holding.id !== id)
+  deleteHolding(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.holdingsUrl}/${id}`).pipe(
+      tap(() =>
+        this.holdings.update((holdings) =>
+          holdings.filter((holding) => holding.id !== id)
+        )
+      ),
+      catchError((error) =>
+        throwError(() => toReadableHttpError(error, 'Holding could not be deleted.'))
+      )
     );
   }
 
@@ -83,20 +112,24 @@ export class HoldingsService {
     }
   }
 
-  private normalizeHolding(holding: Holding): Holding {
+  private toHoldingRequest(holding: Holding): Omit<
+    Holding,
+    | 'id'
+    | 'userId'
+    | 'createdAt'
+    | 'updatedAt'
+  > {
     return {
-      ...holding,
-      userId: holding.userId || this.tempUserId,
       ticker: holding.ticker.trim().toUpperCase(),
+      companyName: holding.companyName,
+      shareCount: holding.shareCount,
+      averageCost: holding.averageCost,
+      currentPrice: holding.currentPrice,
+      priceLastUpdatedAt: holding.priceLastUpdatedAt,
+      sector: holding.sector,
+      categories: holding.categories,
+      notes: holding.notes,
+      purchaseDate: holding.purchaseDate,
     };
-  }
-
-  private hasDuplicateTicker(ticker: string, userId: string, ignoredHoldingId?: string): boolean {
-    return this.holdings().some(
-      (holding) =>
-        holding.userId === userId &&
-        holding.ticker === ticker &&
-        holding.id !== ignoredHoldingId
-    );
   }
 }

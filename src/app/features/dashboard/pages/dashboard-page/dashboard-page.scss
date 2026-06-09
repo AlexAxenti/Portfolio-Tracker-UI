@@ -56,7 +56,15 @@ h2 {
   font-size: 0.95rem;
 }
 
-.add-button {
+.header-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.header-action {
   border-radius: 999px;
   flex: 0 0 auto;
   font-weight: 700;
@@ -133,8 +141,13 @@ h2 {
     flex-direction: column;
   }
 
-  .add-button {
+  .header-actions,
+  .header-action {
     align-self: stretch;
+  }
+
+  .header-actions {
+    width: 100%;
   }
 }
 

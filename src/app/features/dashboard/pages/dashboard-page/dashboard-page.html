@@ -6,9 +6,26 @@
       <p class="subtitle">Portfolio overview and recent trade history</p>
     </div>
 
-    <button mat-flat-button class="add-button" type="button" (click)="onAddTrade()">
-      Add Trade
-    </button>
+    <div class="header-actions">
+      <button
+        mat-stroked-button
+        class="header-action"
+        type="button"
+        [disabled]="isRefreshingPrices()"
+        [attr.aria-busy]="isRefreshingPrices()"
+        (click)="onRefreshPrices()"
+      >
+        @if (isRefreshingPrices()) {
+          Refreshing...
+        } @else {
+          Refresh Prices
+        }
+      </button>
+
+      <button mat-flat-button class="header-action" type="button" (click)="onAddTrade()">
+        Add Trade
+      </button>
+    </div>
   </div>
 
   @if (sortedHoldingViews().length === 0) {
@@ -19,7 +36,7 @@
           Add a new trade
         </button>
         OR
-        <a mat-stroked-button routerLink="/holdings">
+        <a mat-stroked-button routerLink="/dashboard/holdings">
           Go to holdings
         </a>
       </div>
