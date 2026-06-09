@@ -33,6 +33,15 @@ export class HoldingsService {
     );
   }
 
+  refreshPrices(): Observable<Holding[]> {
+    return this.http.post<Holding[]>(`${this.holdingsUrl}/refresh-prices`, {}).pipe(
+      tap((holdings) => this.holdings.set(holdings)),
+      catchError((error) =>
+        throwError(() => toReadableHttpError(error, 'Holding prices could not be refreshed.'))
+      )
+    );
+  }
+
   addHolding(holding: Holding): Observable<Holding> {
     return this.http.post<Holding>(this.holdingsUrl, this.toHoldingRequest(holding)).pipe(
       tap((createdHolding) => this.holdings.update((holdings) => [...holdings, createdHolding])),

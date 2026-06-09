@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
-import { filter, forkJoin, take } from 'rxjs';
+import { filter, finalize, forkJoin, take } from 'rxjs';
 import { HoldingsAllocationChartComponent } from '../../../holdings/components/holdings-allocation-chart/holdings-allocation-chart';
 import { HoldingsTableComponent } from '../../../holdings/components/holdings-table/holdings-table';
 import { HoldingView } from '../../../holdings/models/holding.model';
@@ -35,6 +35,7 @@ export class DashboardPage implements OnInit {
   private readonly dialog = inject(MatDialog);
 
   readonly selectedHoldingId = signal<string | null>(null);
+  readonly isRefreshingPrices = signal(false);
   readonly sortedHoldingViews = computed(() =>
     [...this.holdingsService.holdingViews()].sort(
       (first, second) =>
@@ -66,6 +67,20 @@ export class DashboardPage implements OnInit {
     this.openCreateTradeDialog();
   }
 
+  onRefreshPrices(): void {
+    if (this.isRefreshingPrices()) {
+      return;
+    }
+
+    this.isRefreshingPrices.set(true);
+    this.holdingsService
+      .refreshPrices()
+      .pipe(finalize(() => this.isRefreshingPrices.set(false)))
+      .subscribe({
+        error: (error) => console.error(this.toErrorMessage(error, 'Holding prices could not be refreshed.')),
+      });
+  }
+
   onChartSliceSelected(holding: HoldingView): void {
     this.selectedHoldingId.set(holding.id);
   }
@@ -94,7 +109,7 @@ export class DashboardPage implements OnInit {
       );
   }
 
-  private toErrorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : 'Trade changes could not be applied.';
+  private toErrorMessage(error: unknown, fallbackMessage = 'Trade changes could not be applied.'): string {
+    return error instanceof Error ? error.message : fallbackMessage;
   }
 }
