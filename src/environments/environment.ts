@@ -19,7 +19,7 @@ export const environment = {
     runtimeEnvironment.__env?.apiUrl ??
     runtimeEnvironment.__env?.PORTFOLIO_TRACKER_API_URL ??
     runtimeEnvironment.process?.env?.['PORTFOLIO_TRACKER_API_URL'] ??
-    'http://localhost:5011',
+    'http://168.119.115.41:5011',
   supabaseUrl:
     runtimeEnvironment.__env?.supabaseUrl ??
     runtimeEnvironment.__env?.PORTFOLIO_TRACKER_SUPABASE_URL ??
