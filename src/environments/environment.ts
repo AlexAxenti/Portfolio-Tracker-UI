@@ -19,7 +19,7 @@ export const environment = {
     runtimeEnvironment.__env?.apiUrl ??
     runtimeEnvironment.__env?.PORTFOLIO_TRACKER_API_URL ??
     runtimeEnvironment.process?.env?.['PORTFOLIO_TRACKER_API_URL'] ??
-    'http://168.119.115.41:5011',
+    'https://portfolio-api.168.119.115.41.nip.io',
   supabaseUrl:
     runtimeEnvironment.__env?.supabaseUrl ??
     runtimeEnvironment.__env?.PORTFOLIO_TRACKER_SUPABASE_URL ??
