@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
-import { filter, take } from 'rxjs';
+import { filter, forkJoin, take } from 'rxjs';
 import { HoldingsAllocationChartComponent } from '../../../holdings/components/holdings-allocation-chart/holdings-allocation-chart';
 import { HoldingsTableComponent } from '../../../holdings/components/holdings-table/holdings-table';
 import { HoldingView } from '../../../holdings/models/holding.model';
@@ -29,7 +29,7 @@ import { TradeService } from '../../../trades/services/trade.service';
   styleUrl: './dashboard-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardPage {
+export class DashboardPage implements OnInit {
   private readonly holdingsService = inject(HoldingsService);
   private readonly tradeService = inject(TradeService);
   private readonly dialog = inject(MatDialog);
@@ -52,6 +52,15 @@ export class DashboardPage {
       .getHoldings()
       .map((holding) => holding.ticker)
   );
+
+  ngOnInit(): void {
+    forkJoin([
+      this.holdingsService.loadHoldings(),
+      this.tradeService.loadTrades(),
+    ]).subscribe({
+      error: (error) => console.error(this.toErrorMessage(error)),
+    });
+  }
 
   onAddTrade(): void {
     this.openCreateTradeDialog();
@@ -78,13 +87,11 @@ export class DashboardPage {
         take(1),
         filter((result): result is TradeInput => Boolean(result))
       )
-      .subscribe((result) => {
-        try {
-          this.tradeService.createTrade(result);
-        } catch (error) {
-          this.openCreateTradeDialog(result, this.toErrorMessage(error));
-        }
-      });
+      .subscribe((result) =>
+        this.tradeService.createTrade(result).subscribe({
+          error: (error) => this.openCreateTradeDialog(result, this.toErrorMessage(error)),
+        })
+      );
   }
 
   private toErrorMessage(error: unknown): string {

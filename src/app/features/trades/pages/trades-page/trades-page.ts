@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { filter, take } from 'rxjs';
+import { filter, forkJoin, take } from 'rxjs';
 import { HoldingsService } from '../../../holdings/services/holdings.service';
 import {
   TradeFormDialogComponent,
@@ -18,7 +18,7 @@ import { TradeService } from '../../services/trade.service';
   styleUrl: './trades-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TradesPage {
+export class TradesPage implements OnInit {
   private readonly tradeService = inject(TradeService);
   private readonly holdingsService = inject(HoldingsService);
   private readonly dialog = inject(MatDialog);
@@ -34,6 +34,15 @@ export class TradesPage {
       .map((holding) => holding.ticker)
   );
 
+  ngOnInit(): void {
+    forkJoin([
+      this.holdingsService.loadHoldings(),
+      this.tradeService.loadTrades(),
+    ]).subscribe({
+      error: (error) => console.error(this.toErrorMessage(error)),
+    });
+  }
+
   onAddTrade(): void {
     this.openCreateTradeDialog();
   }
@@ -43,11 +52,9 @@ export class TradesPage {
   }
 
   onDeleteTrade(trade: Trade): void {
-    try {
-      this.tradeService.deleteTrade(trade.id);
-    } catch (error) {
-      this.openEditTradeDialog(trade, this.toErrorMessage(error));
-    }
+    this.tradeService.deleteTrade(trade.id).subscribe({
+      error: (error) => this.openEditTradeDialog(trade, this.toErrorMessage(error)),
+    });
   }
 
   private openCreateTradeDialog(trade?: TradeInput, errorMessage?: string): void {
@@ -67,13 +74,11 @@ export class TradesPage {
         take(1),
         filter((result): result is TradeInput => Boolean(result))
       )
-      .subscribe((result) => {
-        try {
-          this.tradeService.createTrade(result);
-        } catch (error) {
-          this.openCreateTradeDialog(result, this.toErrorMessage(error));
-        }
-      });
+      .subscribe((result) =>
+        this.tradeService.createTrade(result).subscribe({
+          error: (error) => this.openCreateTradeDialog(result, this.toErrorMessage(error)),
+        })
+      );
   }
 
   private openEditTradeDialog(trade: Trade, errorMessage?: string): void {
@@ -93,13 +98,12 @@ export class TradesPage {
         take(1),
         filter((result): result is TradeInput => Boolean(result))
       )
-      .subscribe((result) => {
-        try {
-          this.tradeService.updateTrade(trade.id, result);
-        } catch (error) {
-          this.openEditTradeDialog({ ...trade, ...result }, this.toErrorMessage(error));
-        }
-      });
+      .subscribe((result) =>
+        this.tradeService.updateTrade(trade.id, result).subscribe({
+          error: (error) =>
+            this.openEditTradeDialog({ ...trade, ...result }, this.toErrorMessage(error)),
+        })
+      );
   }
 
   private toErrorMessage(error: unknown): string {

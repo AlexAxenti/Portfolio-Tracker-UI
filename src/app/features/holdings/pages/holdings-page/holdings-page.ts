@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HoldingsService } from '../../services/holdings.service';
 import { Holding, HoldingView } from '../../models/holding.model';
 import { HoldingsSort } from '../../models/holding-sort.type';
@@ -28,7 +28,7 @@ import { filter, take } from 'rxjs';
   styleUrl: './holdings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HoldingsPage {
+export class HoldingsPage implements OnInit {
   private readonly holdingsService = inject(HoldingsService);
   private readonly dialog = inject(MatDialog);
 
@@ -49,6 +49,12 @@ export class HoldingsPage {
     );
   });
 
+  ngOnInit(): void {
+    this.holdingsService.loadHoldings().subscribe({
+      error: (error) => console.error(this.toErrorMessage(error)),
+    });
+  }
+
   onSortChanged(sort: HoldingsSort): void {
     this.sortMode.set(sort);
   }
@@ -66,11 +72,15 @@ export class HoldingsPage {
   }
 
   onDeleteHolding(holding: HoldingView): void {
+    this.openDeleteHoldingDialog(this.toHolding(holding));
+  }
+
+  private openDeleteHoldingDialog(holding: Holding, errorMessage?: string): void {
     this.dialog
       .open<HoldingDeleteDialogComponent, HoldingDeleteDialogData, boolean>(
         HoldingDeleteDialogComponent,
         {
-          data: { holding: this.toHolding(holding) },
+          data: { holding, errorMessage },
         }
       )
       .afterClosed()
@@ -78,7 +88,11 @@ export class HoldingsPage {
         take(1),
         filter((confirmed) => confirmed === true)
       )
-      .subscribe(() => this.holdingsService.deleteHolding(holding.id));
+      .subscribe(() =>
+        this.holdingsService.deleteHolding(holding.id).subscribe({
+          error: (error) => this.openDeleteHoldingDialog(holding, this.toErrorMessage(error)),
+        })
+      );
   }
 
   private openAddHoldingDialog(holding?: Holding, errorMessage?: string): void {
@@ -94,13 +108,11 @@ export class HoldingsPage {
         take(1),
         filter((result): result is Holding => Boolean(result))
       )
-      .subscribe((result) => {
-        try {
-          this.holdingsService.addHolding(result);
-        } catch (error) {
-          this.openAddHoldingDialog(result, this.toErrorMessage(error));
-        }
-      });
+      .subscribe((result) =>
+        this.holdingsService.addHolding(result).subscribe({
+          error: (error) => this.openAddHoldingDialog(result, this.toErrorMessage(error)),
+        })
+      );
   }
 
   private openUpdateHoldingDialog(holding: Holding, errorMessage?: string): void {
@@ -116,13 +128,12 @@ export class HoldingsPage {
         take(1),
         filter((updatedHolding): updatedHolding is Holding => Boolean(updatedHolding))
       )
-      .subscribe((updatedHolding) => {
-        try {
-          this.holdingsService.updateHolding(updatedHolding);
-        } catch (error) {
-          this.openUpdateHoldingDialog(updatedHolding, this.toErrorMessage(error));
-        }
-      });
+      .subscribe((updatedHolding) =>
+        this.holdingsService.updateHolding(updatedHolding).subscribe({
+          error: (error) =>
+            this.openUpdateHoldingDialog(updatedHolding, this.toErrorMessage(error)),
+        })
+      );
   }
 
   private toHolding(holding: HoldingView): Holding {

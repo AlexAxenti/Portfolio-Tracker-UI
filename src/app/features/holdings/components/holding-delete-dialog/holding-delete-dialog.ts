@@ -5,6 +5,7 @@ import { Holding } from '../../models/holding.model';
 
 export interface HoldingDeleteDialogData {
   holding: Holding;
+  errorMessage?: string;
 }
 
 @Component({
@@ -22,6 +23,7 @@ export class HoldingDeleteDialogComponent {
   private readonly data = inject<HoldingDeleteDialogData>(MAT_DIALOG_DATA);
 
   readonly holding = this.data.holding;
+  readonly errorMessage = this.data.errorMessage;
 
   onCancel(): void {
     this.dialogRef.close(false);

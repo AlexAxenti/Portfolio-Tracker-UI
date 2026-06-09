@@ -4,6 +4,10 @@
   <p>
     Are you sure you want to delete {{ holding.ticker }}?
   </p>
+
+  @if (errorMessage) {
+    <p class="error-message">{{ errorMessage }}</p>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

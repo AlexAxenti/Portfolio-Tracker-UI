@@ -5,3 +5,8 @@ mat-dialog-content {
 p {
   margin: 0;
 }
+
+.error-message {
+  color: var(--mat-sys-error);
+  margin-top: 1rem;
+}
