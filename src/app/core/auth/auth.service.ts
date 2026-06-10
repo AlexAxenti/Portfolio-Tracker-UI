@@ -75,6 +75,9 @@ export class AuthService {
       return null;
     }
 
+    const { data: sessionData } = await supabase.auth.getSession();
+    this.sessionState.set(sessionData.session);
+
     return data.user;
   }
 
