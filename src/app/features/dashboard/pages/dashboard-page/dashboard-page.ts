@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
 import { filter, finalize, forkJoin, take } from 'rxjs';
+import { PricesService } from '../../../../core/prices.service';
 import { HoldingsAllocationChartComponent } from '../../../holdings/components/holdings-allocation-chart/holdings-allocation-chart';
 import { HoldingsTableComponent } from '../../../holdings/components/holdings-table/holdings-table';
 import { HoldingView } from '../../../holdings/models/holding.model';
@@ -31,6 +32,7 @@ import { TradeService } from '../../../trades/services/trade.service';
 })
 export class DashboardPage implements OnInit {
   private readonly holdingsService = inject(HoldingsService);
+  private readonly pricesService = inject(PricesService);
   private readonly tradeService = inject(TradeService);
   private readonly dialog = inject(MatDialog);
 
@@ -73,7 +75,7 @@ export class DashboardPage implements OnInit {
     }
 
     this.isRefreshingPrices.set(true);
-    this.holdingsService
+    this.pricesService
       .refreshPrices()
       .pipe(finalize(() => this.isRefreshingPrices.set(false)))
       .subscribe({

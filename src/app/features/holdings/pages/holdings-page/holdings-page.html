@@ -6,9 +6,26 @@
       <p class="subtitle">Track current positions and unrealized gains</p>
     </div>
 
-    <button mat-flat-button class="add-button" type="button" (click)="onAddHolding()">
-      Add Holding
-    </button>
+    <div class="header-actions">
+      <button
+        mat-stroked-button
+        class="header-action"
+        type="button"
+        [disabled]="isRefreshingPrices()"
+        [attr.aria-busy]="isRefreshingPrices()"
+        (click)="onRefreshPrices()"
+      >
+        @if (isRefreshingPrices()) {
+          Refreshing...
+        } @else {
+          Refresh Prices
+        }
+      </button>
+
+      <button mat-flat-button class="header-action" type="button" (click)="onAddHolding()">
+        Add Holding
+      </button>
+    </div>
   </div>
 
   @if (sortedHoldingViews().length === 0) {

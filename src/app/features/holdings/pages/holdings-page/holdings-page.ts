@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { PricesService } from '../../../../core/prices.service';
 import { HoldingsService } from '../../services/holdings.service';
 import { Holding, HoldingView } from '../../models/holding.model';
 import { HoldingsSort } from '../../models/holding-sort.type';
@@ -14,7 +15,7 @@ import {
 } from '../../components/holding-delete-dialog/holding-delete-dialog';
 import { HoldingsAllocationChartComponent } from '../../components/holdings-allocation-chart/holdings-allocation-chart';
 import { HoldingsTableComponent } from '../../components/holdings-table/holdings-table';
-import { filter, take } from 'rxjs';
+import { filter, finalize, take } from 'rxjs';
 
 @Component({
   selector: 'app-holdings-page',
@@ -30,9 +31,11 @@ import { filter, take } from 'rxjs';
 })
 export class HoldingsPage implements OnInit {
   private readonly holdingsService = inject(HoldingsService);
+  private readonly pricesService = inject(PricesService);
   private readonly dialog = inject(MatDialog);
 
   readonly holdingViews = this.holdingsService.holdingViews;
+  readonly isRefreshingPrices = signal(false);
   readonly selectedHoldingId = signal<string | null>(null);
   readonly sortMode = signal<HoldingsSort>('allocation');
   readonly sortedHoldingViews = computed(() => {
@@ -65,6 +68,20 @@ export class HoldingsPage implements OnInit {
 
   onAddHolding(): void {
     this.openAddHoldingDialog();
+  }
+
+  onRefreshPrices(): void {
+    if (this.isRefreshingPrices()) {
+      return;
+    }
+
+    this.isRefreshingPrices.set(true);
+    this.pricesService
+      .refreshPrices()
+      .pipe(finalize(() => this.isRefreshingPrices.set(false)))
+      .subscribe({
+        error: (error) => console.error(this.toErrorMessage(error, 'Holding prices could not be refreshed.')),
+      });
   }
 
   onUpdateHolding(holding: HoldingView): void {
@@ -155,7 +172,7 @@ export class HoldingsPage implements OnInit {
     };
   }
 
-  private toErrorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : 'Holding changes could not be applied.';
+  private toErrorMessage(error: unknown, fallbackMessage = 'Holding changes could not be applied.'): string {
+    return error instanceof Error ? error.message : fallbackMessage;
   }
 }
