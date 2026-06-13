@@ -4,16 +4,22 @@
   </a>
 
   <nav class="public-nav" aria-label="Public navigation">
-    <a
-      class="nav-link"
-      routerLink="/login"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      Login
-    </a>
-    <a mat-flat-button class="register-link" routerLink="/register">
-      Register
-    </a>
+    @if (isAuthenticated()) {
+      <a mat-flat-button class="register-link" routerLink="/dashboard">
+        Dashboard
+      </a>
+    } @else {
+      <a
+        class="nav-link"
+        routerLink="/login"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Login
+      </a>
+      <a mat-flat-button class="register-link" routerLink="/register">
+        Register
+      </a>
+    }
   </nav>
 </header>

@@ -19,5 +19,15 @@ const requireAuthenticatedSession = async (_route: unknown, state: RouterStateSn
   });
 };
 
+const redirectAuthenticatedSession = async () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  const user = await authService.getUser();
+
+  return user ? router.createUrlTree(['/dashboard']) : true;
+};
+
 export const authGuard: CanActivateFn = requireAuthenticatedSession;
 export const authChildGuard: CanActivateChildFn = requireAuthenticatedSession;
+export const guestGuard: CanActivateFn = redirectAuthenticatedSession;

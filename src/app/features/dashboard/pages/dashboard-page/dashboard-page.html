@@ -28,7 +28,12 @@
     </div>
   </div>
 
-  @if (sortedHoldingViews().length === 0) {
+  @if (isLoadingDashboard()) {
+    <div class="loading-state" role="status" aria-live="polite">
+      <span class="loading-dot" aria-hidden="true"></span>
+      Loading dashboard...
+    </div>
+  } @else if (sortedHoldingViews().length === 0) {
     <div class="empty-state holdings-empty-state">
       <p>No holdings yet.</p>
       <div class="empty-actions" aria-label="Dashboard empty holdings actions">
@@ -68,7 +73,12 @@
       <h2 id="dashboard-trades-title">Trade History</h2>
     </div>
 
-    @if (trades().length === 0) {
+    @if (isLoadingDashboard()) {
+      <p class="loading-state compact" role="status" aria-live="polite">
+        <span class="loading-dot" aria-hidden="true"></span>
+        Loading trades...
+      </p>
+    } @else if (trades().length === 0) {
       <p class="empty-state compact">No trades yet.</p>
     } @else {
       <app-trades-list [trades]="trades()" [dashboardMode]="true" />

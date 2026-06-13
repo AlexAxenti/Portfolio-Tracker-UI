@@ -21,7 +21,7 @@
 
 table {
   border-collapse: collapse;
-  min-width: 58rem;
+  min-width: 48rem;
   width: 100%;
 }
 
@@ -66,8 +66,7 @@ tbody tr:last-child td {
 }
 
 .text-column,
-.ticker-cell,
-.company-cell {
+.ticker-cell {
   text-align: left;
 }
 
@@ -84,18 +83,10 @@ tbody tr:last-child td {
   width: 7rem;
 }
 
-.company-column {
-  min-width: 10rem;
-}
-
 .ticker-cell {
   color: var(--mat-sys-primary);
   font-weight: 800;
   letter-spacing: 0.03em;
-}
-
-.company-cell {
-  color: var(--mat-sys-on-surface);
 }
 
 .percent-value {

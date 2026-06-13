@@ -84,6 +84,14 @@ export class HoldingFormDialogComponent {
     this.dialogRef.close();
   }
 
+  onTickerInput(value: string): void {
+    const ticker = value.toUpperCase();
+
+    if (value !== ticker) {
+      this.form.controls.ticker.setValue(ticker, { emitEvent: false });
+    }
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

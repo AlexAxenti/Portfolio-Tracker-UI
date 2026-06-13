@@ -8,8 +8,12 @@
     </p>
 
     <div class="hero-actions" aria-label="Authentication actions">
-      <a mat-flat-button routerLink="/register">Create account</a>
-      <a mat-stroked-button routerLink="/login">Login</a>
+      @if (isAuthenticated()) {
+        <a mat-flat-button routerLink="/dashboard">Go to Dashboard</a>
+      } @else {
+        <a mat-flat-button routerLink="/register">Create account</a>
+        <a mat-stroked-button routerLink="/login">Login</a>
+      }
     </div>
   </div>
 

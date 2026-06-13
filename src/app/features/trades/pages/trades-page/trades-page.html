@@ -11,7 +11,12 @@
     </button>
   </div>
 
-  @if (trades().length === 0) {
+  @if (isLoadingTrades()) {
+    <div class="loading-state" role="status" aria-live="polite">
+      <span class="loading-dot" aria-hidden="true"></span>
+      Loading trades...
+    </div>
+  } @else if (trades().length === 0) {
     <p class="empty-state">No trades yet.</p>
   } @else {
     <div class="trades-content">

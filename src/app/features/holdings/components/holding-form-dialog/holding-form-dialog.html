@@ -9,7 +9,14 @@
     <div>
       <mat-form-field appearance="outline">
         <mat-label>Ticker</mat-label>
-        <input matInput formControlName="ticker" autocomplete="off" aria-describedby="ticker-error" />
+        <input
+          #tickerInput
+          matInput
+          formControlName="ticker"
+          autocomplete="off"
+          aria-describedby="ticker-error"
+          (input)="onTickerInput(tickerInput.value)"
+        />
       </mat-form-field>
       @if (form.controls.ticker.touched && form.controls.ticker.invalid) {
         <p id="ticker-error" class="field-error" aria-live="polite">{{ getErrorMessage('ticker') }}</p>

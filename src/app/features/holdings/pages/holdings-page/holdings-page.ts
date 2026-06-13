@@ -9,12 +9,12 @@ import {
   HoldingFormDialogComponent,
   HoldingFormDialogData,
 } from '../../components/holding-form-dialog/holding-form-dialog';
-import {
-  HoldingDeleteDialogComponent,
-  HoldingDeleteDialogData,
-} from '../../components/holding-delete-dialog/holding-delete-dialog';
 import { HoldingsAllocationChartComponent } from '../../components/holdings-allocation-chart/holdings-allocation-chart';
 import { HoldingsTableComponent } from '../../components/holdings-table/holdings-table';
+import {
+  ConfirmDeleteDialogComponent,
+  ConfirmDeleteDialogData,
+} from '../../../../shared/components/confirm-delete-dialog/confirm-delete-dialog';
 import { filter, finalize, take } from 'rxjs';
 
 @Component({
@@ -35,6 +35,7 @@ export class HoldingsPage implements OnInit {
   private readonly dialog = inject(MatDialog);
 
   readonly holdingViews = this.holdingsService.holdingViews;
+  readonly isLoadingHoldings = signal(true);
   readonly isRefreshingPrices = signal(false);
   readonly selectedHoldingId = signal<string | null>(null);
   readonly sortMode = signal<HoldingsSort>('allocation');
@@ -53,9 +54,12 @@ export class HoldingsPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.holdingsService.loadHoldings().subscribe({
-      error: (error) => console.error(this.toErrorMessage(error)),
-    });
+    this.holdingsService
+      .loadHoldings()
+      .pipe(finalize(() => this.isLoadingHoldings.set(false)))
+      .subscribe({
+        error: (error) => console.error(this.toErrorMessage(error)),
+      });
   }
 
   onSortChanged(sort: HoldingsSort): void {
@@ -94,10 +98,14 @@ export class HoldingsPage implements OnInit {
 
   private openDeleteHoldingDialog(holding: Holding, errorMessage?: string): void {
     this.dialog
-      .open<HoldingDeleteDialogComponent, HoldingDeleteDialogData, boolean>(
-        HoldingDeleteDialogComponent,
+      .open<ConfirmDeleteDialogComponent, ConfirmDeleteDialogData, boolean>(
+        ConfirmDeleteDialogComponent,
         {
-          data: { holding, errorMessage },
+          data: {
+            title: 'Delete Holding',
+            message: `Are you sure you want to delete ${holding.ticker}?`,
+            errorMessage,
+          },
         }
       )
       .afterClosed()

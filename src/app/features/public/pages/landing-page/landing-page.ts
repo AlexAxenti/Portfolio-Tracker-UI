@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -9,4 +10,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './landing-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LandingPage {}
+export class LandingPage {
+  private readonly authService = inject(AuthService);
+
+  readonly isAuthenticated = this.authService.isAuthenticated;
+}

@@ -1,8 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { filter, forkJoin, take } from 'rxjs';
+import { filter, finalize, forkJoin, take } from 'rxjs';
 import { HoldingsService } from '../../../holdings/services/holdings.service';
+import {
+  ConfirmDeleteDialogComponent,
+  ConfirmDeleteDialogData,
+} from '../../../../shared/components/confirm-delete-dialog/confirm-delete-dialog';
 import {
   TradeFormDialogComponent,
   TradeFormDialogData,
@@ -23,6 +27,7 @@ export class TradesPage implements OnInit {
   private readonly holdingsService = inject(HoldingsService);
   private readonly dialog = inject(MatDialog);
 
+  readonly isLoadingTrades = signal(true);
   readonly trades = computed(() =>
     [...this.tradeService.trades()].sort((first, second) =>
       second.tradeDate.localeCompare(first.tradeDate) || first.ticker.localeCompare(second.ticker)
@@ -38,9 +43,11 @@ export class TradesPage implements OnInit {
     forkJoin([
       this.holdingsService.loadHoldings(),
       this.tradeService.loadTrades(),
-    ]).subscribe({
-      error: (error) => console.error(this.toErrorMessage(error)),
-    });
+    ])
+      .pipe(finalize(() => this.isLoadingTrades.set(false)))
+      .subscribe({
+        error: (error) => console.error(this.toErrorMessage(error)),
+      });
   }
 
   onAddTrade(): void {
@@ -52,9 +59,35 @@ export class TradesPage implements OnInit {
   }
 
   onDeleteTrade(trade: Trade): void {
-    this.tradeService.deleteTrade(trade.id).subscribe({
-      error: (error) => this.openEditTradeDialog(trade, this.toErrorMessage(error)),
-    });
+    this.openDeleteTradeDialog(trade);
+  }
+
+  private openDeleteTradeDialog(trade: Trade, errorMessage?: string): void {
+    this.dialog
+      .open<ConfirmDeleteDialogComponent, ConfirmDeleteDialogData, boolean>(
+        ConfirmDeleteDialogComponent,
+        {
+          data: {
+            title: 'Delete Trade',
+            message: `Are you sure you want to delete the ${trade.type} trade for ${trade.ticker}?`,
+            errorMessage,
+          },
+        }
+      )
+      .afterClosed()
+      .pipe(
+        take(1),
+        filter((confirmed) => confirmed === true)
+      )
+      .subscribe(() =>
+        this.tradeService.deleteTrade(trade.id).subscribe({
+          error: (error) =>
+            this.openDeleteTradeDialog(
+              trade,
+              this.toErrorMessage(error, 'Trade could not be deleted.')
+            ),
+        })
+      );
   }
 
   private openCreateTradeDialog(trade?: TradeInput, errorMessage?: string): void {
@@ -106,7 +139,10 @@ export class TradesPage implements OnInit {
       );
   }
 
-  private toErrorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : 'Trade changes could not be applied.';
+  private toErrorMessage(
+    error: unknown,
+    fallbackMessage = 'Trade changes could not be applied.'
+  ): string {
+    return error instanceof Error ? error.message : fallbackMessage;
   }
 }

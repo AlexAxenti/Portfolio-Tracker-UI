@@ -28,7 +28,12 @@
     </div>
   </div>
 
-  @if (sortedHoldingViews().length === 0) {
+  @if (isLoadingHoldings()) {
+    <div class="loading-state" role="status" aria-live="polite">
+      <span class="loading-dot" aria-hidden="true"></span>
+      Loading holdings...
+    </div>
+  } @else if (sortedHoldingViews().length === 0) {
     <p class="empty-state">No holdings yet.</p>
   } @else {
     <div class="holdings-content">

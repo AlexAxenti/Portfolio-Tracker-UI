@@ -3,7 +3,6 @@
     <thead>
       <tr>
         <th class="text-column" scope="col">Ticker</th>
-        <th class="text-column company-column" scope="col">Company</th>
         <th class="numeric-column" scope="col">Shares</th>
         <th class="numeric-column" scope="col">Avg Cost</th>
         <th class="numeric-column" scope="col">Current Price</th>
@@ -20,7 +19,6 @@
       @for (holding of holdingViews(); track holding.id) {
         <tr [class.selected-row]="holding.id === selectedHoldingId()">
           <td class="ticker-cell">{{ holding.ticker }}</td>
-          <td class="company-cell">{{ holding.companyName }}</td>
           <td class="numeric-column">{{ holding.shareCount }}</td>
           <td class="numeric-column">{{ holding.averageCost | currency: 'USD': 'symbol': '1.2-3' }}</td>
           <td class="numeric-column">{{ holding.effectiveCurrentPrice | currency: 'USD': 'symbol': '1.2-3' }}</td>

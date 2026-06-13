@@ -108,6 +108,8 @@ export class HoldingsService {
     | 'id'
     | 'userId'
     | 'tickerId'
+    | 'currentPrice'
+    | 'priceLastUpdatedAt'
     | 'createdAt'
     | 'updatedAt'
   > {
@@ -116,8 +118,6 @@ export class HoldingsService {
       companyName: holding.companyName,
       shareCount: holding.shareCount,
       averageCost: holding.averageCost,
-      currentPrice: holding.currentPrice,
-      priceLastUpdatedAt: holding.priceLastUpdatedAt,
       sector: holding.sector,
       categories: holding.categories,
       notes: holding.notes,
