@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { filter, finalize, forkJoin, take } from 'rxjs';
+import { filter, forkJoin, take } from 'rxjs';
 import { HoldingsService } from '../../../holdings/services/holdings.service';
 import {
   ConfirmDeleteDialogComponent,
@@ -27,7 +27,11 @@ export class TradesPage implements OnInit {
   private readonly holdingsService = inject(HoldingsService);
   private readonly dialog = inject(MatDialog);
 
-  readonly isLoadingTrades = signal(true);
+  readonly isLoadingTrades = computed(
+    () =>
+      this.tradeService.isLoadingTrades() &&
+      !this.tradeService.hasLoadedTrades()
+  );
   readonly trades = computed(() =>
     [...this.tradeService.trades()].sort((first, second) =>
       second.tradeDate.localeCompare(first.tradeDate) || first.ticker.localeCompare(second.ticker)
@@ -43,11 +47,9 @@ export class TradesPage implements OnInit {
     forkJoin([
       this.holdingsService.loadHoldings(),
       this.tradeService.loadTrades(),
-    ])
-      .pipe(finalize(() => this.isLoadingTrades.set(false)))
-      .subscribe({
-        error: (error) => console.error(this.toErrorMessage(error)),
-      });
+    ]).subscribe({
+      error: (error) => console.error(this.toErrorMessage(error)),
+    });
   }
 
   onAddTrade(): void {

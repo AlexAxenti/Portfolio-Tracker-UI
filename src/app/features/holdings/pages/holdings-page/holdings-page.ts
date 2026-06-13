@@ -35,7 +35,11 @@ export class HoldingsPage implements OnInit {
   private readonly dialog = inject(MatDialog);
 
   readonly holdingViews = this.holdingsService.holdingViews;
-  readonly isLoadingHoldings = signal(true);
+  readonly isLoadingHoldings = computed(
+    () =>
+      this.holdingsService.isLoadingHoldings() &&
+      !this.holdingsService.hasLoadedHoldings()
+  );
   readonly isRefreshingPrices = signal(false);
   readonly selectedHoldingId = signal<string | null>(null);
   readonly sortMode = signal<HoldingsSort>('allocation');
@@ -54,12 +58,9 @@ export class HoldingsPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.holdingsService
-      .loadHoldings()
-      .pipe(finalize(() => this.isLoadingHoldings.set(false)))
-      .subscribe({
-        error: (error) => console.error(this.toErrorMessage(error)),
-      });
+    this.holdingsService.loadHoldings().subscribe({
+      error: (error) => console.error(this.toErrorMessage(error)),
+    });
   }
 
   onSortChanged(sort: HoldingsSort): void {

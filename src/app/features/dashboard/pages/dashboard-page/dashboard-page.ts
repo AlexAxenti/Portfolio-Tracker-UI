@@ -36,7 +36,17 @@ export class DashboardPage implements OnInit {
   private readonly tradeService = inject(TradeService);
   private readonly dialog = inject(MatDialog);
 
-  readonly isLoadingDashboard = signal(true);
+  readonly isLoadingDashboard = computed(
+    () =>
+      (
+        this.holdingsService.isLoadingHoldings() &&
+        !this.holdingsService.hasLoadedHoldings()
+      ) ||
+      (
+        this.tradeService.isLoadingTrades() &&
+        !this.tradeService.hasLoadedTrades()
+      )
+  );
   readonly selectedHoldingId = signal<string | null>(null);
   readonly isRefreshingPrices = signal(false);
   readonly sortedHoldingViews = computed(() =>
@@ -61,11 +71,9 @@ export class DashboardPage implements OnInit {
     forkJoin([
       this.holdingsService.loadHoldings(),
       this.tradeService.loadTrades(),
-    ])
-      .pipe(finalize(() => this.isLoadingDashboard.set(false)))
-      .subscribe({
-        error: (error) => console.error(this.toErrorMessage(error)),
-      });
+    ]).subscribe({
+      error: (error) => console.error(this.toErrorMessage(error)),
+    });
   }
 
   onAddTrade(): void {

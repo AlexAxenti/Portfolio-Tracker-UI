@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, throwError, tap } from 'rxjs';
+import { Observable, catchError, defer, finalize, throwError, tap } from 'rxjs';
 import { toReadableHttpError } from '../../../core/http-error';
 import { environment } from '../../../../environments/environment';
 import { Holding, HoldingView } from '../models/holding.model';
@@ -12,7 +12,12 @@ export class HoldingsService {
   private readonly http = inject(HttpClient);
   private readonly holdingsUrl = `${environment.apiUrl}/api/holdings`;
   private readonly holdings = signal<Holding[]>([]);
+  private readonly loadingState = signal(false);
+  private readonly loadedState = signal(false);
+  private loadingRequestCount = 0;
 
+  readonly isLoadingHoldings = this.loadingState.asReadonly();
+  readonly hasLoadedHoldings = this.loadedState.asReadonly();
   readonly holdingViews = computed<HoldingView[]>(() => {
     const holdings = this.holdings();
 
@@ -25,17 +30,28 @@ export class HoldingsService {
   });
 
   loadHoldings(): Observable<Holding[]> {
-    return this.http.get<Holding[]>(this.holdingsUrl).pipe(
-      tap((holdings) => this.holdings.set(holdings)),
-      catchError((error) =>
-        throwError(() => toReadableHttpError(error, 'Holdings could not be loaded.'))
-      )
-    );
+    return defer(() => {
+      this.startLoading();
+
+      return this.http.get<Holding[]>(this.holdingsUrl).pipe(
+        tap((holdings) => {
+          this.holdings.set(holdings);
+          this.loadedState.set(true);
+        }),
+        catchError((error) =>
+          throwError(() => toReadableHttpError(error, 'Holdings could not be loaded.'))
+        ),
+        finalize(() => this.stopLoading())
+      );
+    });
   }
 
   addHolding(holding: Holding): Observable<Holding> {
     return this.http.post<Holding>(this.holdingsUrl, this.toHoldingRequest(holding)).pipe(
-      tap((createdHolding) => this.holdings.update((holdings) => [...holdings, createdHolding])),
+      tap((createdHolding) => {
+        this.holdings.update((holdings) => [...holdings, createdHolding]);
+        this.loadedState.set(true);
+      }),
       catchError((error) =>
         throwError(() => toReadableHttpError(error, 'Holding changes could not be applied.'))
       )
@@ -48,6 +64,7 @@ export class HoldingsService {
 
   replaceHoldings(holdings: Holding[]): void {
     this.holdings.set(holdings);
+    this.loadedState.set(true);
   }
 
   updateHolding(updatedHolding: Holding): Observable<Holding> {
@@ -64,6 +81,7 @@ export class HoldingsService {
             )
           )
         ),
+        tap(() => this.loadedState.set(true)),
         catchError((error) =>
           throwError(() => toReadableHttpError(error, 'Holding changes could not be applied.'))
         )
@@ -77,6 +95,7 @@ export class HoldingsService {
           holdings.filter((holding) => holding.id !== id)
         )
       ),
+      tap(() => this.loadedState.set(true)),
       catchError((error) =>
         throwError(() => toReadableHttpError(error, 'Holding could not be deleted.'))
       )
@@ -123,5 +142,15 @@ export class HoldingsService {
       notes: holding.notes,
       purchaseDate: holding.purchaseDate,
     };
+  }
+
+  private startLoading(): void {
+    this.loadingRequestCount += 1;
+    this.loadingState.set(true);
+  }
+
+  private stopLoading(): void {
+    this.loadingRequestCount = Math.max(0, this.loadingRequestCount - 1);
+    this.loadingState.set(this.loadingRequestCount > 0);
   }
 }
