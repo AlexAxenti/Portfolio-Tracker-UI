@@ -101,6 +101,7 @@ export class HoldingFormDialogComponent {
       ...this.holding,
       id: this.holding?.id ?? crypto.randomUUID(),
       userId: this.holding?.userId ?? 'temp',
+      tickerId: this.holding?.tickerId ?? 'temp',
       ticker: formValue.ticker.trim().toUpperCase(),
       companyName: formValue.companyName.trim() || undefined,
       shareCount: formValue.shareCount,

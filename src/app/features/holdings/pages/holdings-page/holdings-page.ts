@@ -157,6 +157,7 @@ export class HoldingsPage implements OnInit {
     return {
       id: holding.id,
       userId: holding.userId,
+      tickerId: holding.tickerId,
       ticker: holding.ticker,
       companyName: holding.companyName,
       shareCount: holding.shareCount,

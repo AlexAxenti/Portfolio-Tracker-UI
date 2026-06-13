@@ -1,6 +1,7 @@
 export interface Holding {
   id: string;
   userId: string;
+  tickerId: string;
   ticker: string;
   companyName?: string;
   shareCount: number;

@@ -107,6 +107,7 @@ export class HoldingsService {
     Holding,
     | 'id'
     | 'userId'
+    | 'tickerId'
     | 'createdAt'
     | 'updatedAt'
   > {
