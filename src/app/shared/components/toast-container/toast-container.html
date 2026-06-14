@@ -1,0 +1,10 @@
+<div class="toast-region" aria-live="polite" aria-atomic="true">
+  @for (toast of toasts(); track toast.id) {
+    <section class="toast" [class.success]="toast.variant === 'success'" [class.error]="toast.variant === 'error'">
+      <p>{{ toast.message }}</p>
+      <button type="button" (click)="dismiss(toast.id)" [attr.aria-label]="'Dismiss notification: ' + toast.message">
+        X
+      </button>
+    </section>
+  }
+</div>

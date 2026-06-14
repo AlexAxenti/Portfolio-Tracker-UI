@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import {
   EMPTY,
@@ -17,6 +17,7 @@ import {
 import { environment } from '../../environments/environment';
 import { HoldingsService } from '../features/holdings/services/holdings.service';
 import { toReadableHttpError } from './http-error';
+import { ToastService } from './toast.service';
 
 export interface PriceRefreshQueuedResponse {
   message: string;
@@ -30,6 +31,7 @@ export interface PriceRefreshQueuedResponse {
 export class PricesService {
   private readonly http = inject(HttpClient);
   private readonly holdingsService = inject(HoldingsService);
+  private readonly toastService = inject(ToastService);
   private readonly pricesUrl = `${environment.apiUrl}/api/prices`;
   private readonly refreshingPrices = signal(false);
 
@@ -45,9 +47,15 @@ export class PricesService {
 
       return this.http.post<PriceRefreshQueuedResponse>(`${this.pricesUrl}/refresh-prices`, {}).pipe(
         tap((response) => console.info('Price refresh queued.', response)),
-        catchError((error) =>
-          throwError(() => toReadableHttpError(error, 'Holding prices could not be refreshed.'))
-        ),
+        catchError((error) => {
+          if (error instanceof HttpErrorResponse && error.status === 429) {
+            this.toastService.error(
+              'You have reached the price refresh limit. You can refresh prices 5 times every 15 minutes.'
+            );
+          }
+
+          return throwError(() => toReadableHttpError(error, 'Holding prices could not be refreshed.'));
+        }),
         switchMap((response) =>
           timer(2_000, 2_000).pipe(
             take(5),
