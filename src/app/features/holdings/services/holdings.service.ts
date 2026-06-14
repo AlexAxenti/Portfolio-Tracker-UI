@@ -11,7 +11,7 @@ import { Holding, HoldingView } from '../models/holding.model';
 export class HoldingsService {
   private readonly http = inject(HttpClient);
   private readonly holdingsUrl = `${environment.apiUrl}/api/holdings`;
-  private readonly holdings = signal<Holding[]>([]);
+  private readonly holdings = signal<Holding[]>([], { equal: areHoldingsEqual });
   private readonly loadingState = signal(false);
   private readonly loadedState = signal(false);
   private loadingRequestCount = 0;
@@ -21,7 +21,7 @@ export class HoldingsService {
   readonly holdingViews = computed<HoldingView[]>(() => {
     const holdings = this.holdings();
 
-    const totalPortfolioValue = this.holdings().reduce((total, holding) => {
+    const totalPortfolioValue = holdings.reduce((total, holding) => {
       const price = holding.currentPrice ?? holding.averageCost;
       return total + holding.shareCount * price;
     }, 0);
@@ -153,4 +153,44 @@ export class HoldingsService {
     this.loadingRequestCount = Math.max(0, this.loadingRequestCount - 1);
     this.loadingState.set(this.loadingRequestCount > 0);
   }
+}
+
+function areHoldingsEqual(first: Holding[], second: Holding[]): boolean {
+  if (first.length !== second.length) {
+    return false;
+  }
+
+  return first.every((holding, index) => areHoldingEqual(holding, second[index]));
+}
+
+function areHoldingEqual(first: Holding, second: Holding): boolean {
+  return (
+    first.id === second.id &&
+    first.userId === second.userId &&
+    first.tickerId === second.tickerId &&
+    first.ticker === second.ticker &&
+    first.companyName === second.companyName &&
+    first.shareCount === second.shareCount &&
+    first.averageCost === second.averageCost &&
+    first.currentPrice === second.currentPrice &&
+    first.priceLastUpdatedAt === second.priceLastUpdatedAt &&
+    first.sector === second.sector &&
+    areStringArraysEqual(first.categories, second.categories) &&
+    first.notes === second.notes &&
+    first.purchaseDate === second.purchaseDate &&
+    first.createdAt === second.createdAt &&
+    first.updatedAt === second.updatedAt
+  );
+}
+
+function areStringArraysEqual(first?: string[], second?: string[]): boolean {
+  if (first === second) {
+    return true;
+  }
+
+  if (!first || !second || first.length !== second.length) {
+    return false;
+  }
+
+  return first.every((value, index) => value === second[index]);
 }

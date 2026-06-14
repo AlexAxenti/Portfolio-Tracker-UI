@@ -15,7 +15,7 @@ import {
   ConfirmDeleteDialogComponent,
   ConfirmDeleteDialogData,
 } from '../../../../shared/components/confirm-delete-dialog/confirm-delete-dialog';
-import { filter, finalize, take } from 'rxjs';
+import { filter, take } from 'rxjs';
 
 @Component({
   selector: 'app-holdings-page',
@@ -40,7 +40,7 @@ export class HoldingsPage implements OnInit {
       this.holdingsService.isLoadingHoldings() &&
       !this.holdingsService.hasLoadedHoldings()
   );
-  readonly isRefreshingPrices = signal(false);
+  readonly isRefreshingPrices = this.pricesService.isRefreshingPrices;
   readonly selectedHoldingId = signal<string | null>(null);
   readonly sortMode = signal<HoldingsSort>('allocation');
   readonly sortedHoldingViews = computed(() => {
@@ -80,10 +80,8 @@ export class HoldingsPage implements OnInit {
       return;
     }
 
-    this.isRefreshingPrices.set(true);
     this.pricesService
       .refreshPrices()
-      .pipe(finalize(() => this.isRefreshingPrices.set(false)))
       .subscribe({
         error: (error) => console.error(this.toErrorMessage(error, 'Holding prices could not be refreshed.')),
       });

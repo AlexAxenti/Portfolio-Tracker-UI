@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
-import { filter, finalize, forkJoin, take } from 'rxjs';
+import { filter, forkJoin, take } from 'rxjs';
 import { PricesService } from '../../../../core/prices.service';
 import { HoldingsAllocationChartComponent } from '../../../holdings/components/holdings-allocation-chart/holdings-allocation-chart';
 import { HoldingsTableComponent } from '../../../holdings/components/holdings-table/holdings-table';
@@ -48,7 +48,7 @@ export class DashboardPage implements OnInit {
       )
   );
   readonly selectedHoldingId = signal<string | null>(null);
-  readonly isRefreshingPrices = signal(false);
+  readonly isRefreshingPrices = this.pricesService.isRefreshingPrices;
   readonly sortedHoldingViews = computed(() =>
     [...this.holdingsService.holdingViews()].sort(
       (first, second) =>
@@ -85,10 +85,8 @@ export class DashboardPage implements OnInit {
       return;
     }
 
-    this.isRefreshingPrices.set(true);
     this.pricesService
       .refreshPrices()
-      .pipe(finalize(() => this.isRefreshingPrices.set(false)))
       .subscribe({
         error: (error) => console.error(this.toErrorMessage(error, 'Holding prices could not be refreshed.')),
       });
